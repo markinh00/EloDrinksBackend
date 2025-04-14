@@ -1,10 +1,12 @@
 from typing import List, Optional
-from models.bar_structure import BarStructure
-from repositories.bar_structure import BarStructureRepository
+from api.models.bar_structure import BarStructure
+from api.repositories.bar_structure import BarStructureRepository
+from api.services.db.sqlmodel.database import get_session
+
 
 class BarStructureService:
     def __init__(self):
-        self.repository = BarStructureRepository()
+        self.repository = BarStructureRepository(session=get_session())
 
     def create_bar(self, name: str, price: float) -> BarStructure:
         new_bar = BarStructure(name=name, price=price)

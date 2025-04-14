@@ -1,6 +1,7 @@
 from sqlmodel import Session, select
 from typing import Optional, List
-from models import BarStructure
+from api.models.bar_structure import BarStructure
+
 
 class BarStructureRepository:
     def __init__(self, session: Session):
