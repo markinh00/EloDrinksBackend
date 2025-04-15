@@ -1,7 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from typing import List
-
-from fastapi_pagination import Page, paginate
 
 from api.services.bar_structure import BarStructureService
 from api.schemas.bar_structure import (
@@ -19,9 +17,9 @@ def create_bar_structure(bar_data: BarStructureCreate):
     return service.create_bar(name=bar_data.name, price=bar_data.price)
 
 
-@router.get("/", response_model=Page[BarStructureRead])
-def get_all_bar_structures():
-    return paginate(service.get_all_bars())
+@router.get("/", response_model=List[BarStructureRead])
+def get_all_bar_structures(page: int = Query(1, ge=1), size: int = Query(10, ge=1, le=100)):
+    return service.get_all_bars(page=page, size=size)
 
 
 @router.get("/{bar_id}", response_model=BarStructureRead)

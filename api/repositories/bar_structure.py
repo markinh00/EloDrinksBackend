@@ -16,8 +16,8 @@ class BarStructureRepository:
     def get_by_id(self, bar_id: int) -> Optional[BarStructure]:
         return self.session.get(BarStructure, bar_id)
 
-    def get_all(self) -> List[BarStructure]:
-        statement = select(BarStructure)
+    def get_all(self, page: int = 1, size: int = 10) -> List[BarStructure]:
+        statement = select(BarStructure).offset((page - 1) * size).limit(size)
         return self.session.exec(statement).all()
 
     def update(self, bar_id: int, updated_data: dict) -> Optional[BarStructure]:
