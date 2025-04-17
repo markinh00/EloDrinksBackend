@@ -4,3 +4,10 @@ pymongo==4.12.0
 python-dotenv==1.1.0
 sqlmodel==0.0.24
 psycopg2-binary~=2.9.10
+starlette~=0.46.1
+pydantic~=2.10.6
+passlib~=1.7.4
+bcrypt==3.2.0
+python-multipart~=0.0.20
+SQLAlchemy~=2.0.40
+python-jose~=3.4.0
