@@ -3,6 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 from api.models.costumer import Costumer
 from api.schemas.costumer import CostumerUpdate
+from api.schemas.pagination import CostumerPagination
 
 
 class CostumerRepository:
@@ -28,8 +29,8 @@ class CostumerRepository:
         statement = select(Costumer).where(Costumer.email == costumer_email)
         return self.session.exec(statement).first()
 
-    def get_all(self) -> list[Costumer]:
-        statement = select(Costumer)
+    def get_all(self, query: CostumerPagination) -> list[Costumer]:
+        statement = select(Costumer).offset((query.page - 1) * query.size).limit(query.size).order_by(query.order.value)
         return list(self.session.exec(statement).all())
 
     def update(self, costumer_id: int, update_data: CostumerUpdate) -> Optional[Costumer]:

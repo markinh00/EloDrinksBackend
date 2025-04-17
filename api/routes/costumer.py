@@ -1,9 +1,10 @@
 from typing import Annotated
 from fastapi import APIRouter
-from fastapi.params import Security
+from fastapi.params import Security, Query
 from starlette.exceptions import HTTPException
 from starlette import status
 from api.schemas.costumer import CostumerRead, CostumerUpdate
+from api.schemas.pagination import CostumerPagination
 from api.schemas.user import UserScopes
 from api.services.costumer import CostumerService
 from dependencies import get_current_user
@@ -53,8 +54,8 @@ def get_user_by_email(
     return costumer
 
 @router.get("/", response_model=list[CostumerRead], dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value])])
-def get_all_costumers():
-    return service.get_all_costumers()
+def get_all_costumers(query: Annotated[CostumerPagination, Query()]):
+    return service.get_all_costumers(query)
 
 @router.put("/{costumer_id}", response_model=CostumerRead)
 def update_costumer(

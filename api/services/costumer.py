@@ -5,6 +5,7 @@ from starlette import status
 from api.models.costumer import Costumer
 from api.repositories.costumer import CostumerRepository
 from api.schemas.costumer import CostumerRegister, CostumerUpdate
+from api.schemas.pagination import CostumerPagination
 from api.services.db.sqlmodel.database import get_session
 
 
@@ -35,8 +36,8 @@ class CostumerService:
     def get_costumer_by_email(self, costumer_email: str) -> Optional[Costumer]:
         return self.repository.get_by_email(costumer_email)
 
-    def get_all_costumers(self) -> List[Costumer]:
-        return self.repository.get_all()
+    def get_all_costumers(self, query: CostumerPagination) -> List[Costumer]:
+        return self.repository.get_all(query)
 
     def update_costumer(self, costumer_id: int, updated_data: CostumerUpdate) -> Optional[Costumer]:
         return self.repository.update(costumer_id, updated_data)
