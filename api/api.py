@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Security
-from dependencies import get_api_key
+from api.dependencies.auth import get_api_key
 from api.routes.auth import register, login
 from api.routes import bar_structure, customer
 from fastapi.middleware.cors import CORSMiddleware

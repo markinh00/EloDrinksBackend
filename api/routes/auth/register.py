@@ -12,7 +12,7 @@ from api.schemas.customer import CustomerRegister
 from api.schemas.user import UserScopes
 from api.services.admin import AdminService
 from api.services.customer import CustomerService
-from dependencies import create_access_token, get_password_hash
+from api.dependencies.auth import create_access_token, get_password_hash
 
 router = APIRouter(prefix="/register", tags=["Auth"])
 

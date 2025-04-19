@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette.exceptions import HTTPException
 from api.schemas.jwt_token import Token
-from dependencies import authenticate_user, create_access_token
+from api.dependencies.auth import authenticate_user, create_access_token
 
 load_dotenv()
 

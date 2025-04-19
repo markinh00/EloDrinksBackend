@@ -4,7 +4,7 @@ from starlette.exceptions import HTTPException
 from starlette import status
 from api.models.customer import Customer
 from api.repositories.customer import CustomerRepository
-from api.schemas.customer import CustomerRegister, CustomerUpdate
+from api.schemas.customer import CustomerRegister, CustomerUpdate, CustomerSearchParams
 from api.schemas.pagination import CustomerPagination
 from api.services.db.sqlmodel.database import get_session
 
@@ -33,8 +33,8 @@ class CustomerService:
     def get_customer_by_id(self, customer_id: int) -> Optional[Customer]:
         return self.repository.get_by_id(customer_id)
 
-    def get_customer_by_email(self, customer_email: str) -> Optional[Customer]:
-        return self.repository.get_by_email(customer_email)
+    def search_customer(self, params: CustomerSearchParams) -> list[Customer]:
+        return self.repository.search(params)
 
     def get_all_customers(self, query: CustomerPagination) -> List[Customer]:
         return self.repository.get_all(query)
