@@ -1,15 +1,13 @@
 from enum import Enum
-
 from pydantic import BaseModel
-
 from api.models.admin import Admin
-from api.models.costumer import Costumer
+from api.models.customer import Customer
 
 
 class UserScopes(Enum):
     ADMIN = "admin"
-    COSTUMER = "costumer"
+    CUSTOMER = "customer"
 
 class User(BaseModel):
-    data: Admin | Costumer
+    data: Admin | Customer
     scope: UserScopes

@@ -1,14 +1,14 @@
 from pydantic import BaseModel, Field
 
 
-class CostumerRegister(BaseModel):
+class CustomerRegister(BaseModel):
     name: str
     telephone: str
     email: str
     password: str
     confirmPassword:  str
 
-class CostumerRead(BaseModel):
+class CustomerRead(BaseModel):
     id: int
     name: str
     telephone: str
@@ -18,6 +18,6 @@ class CostumerRead(BaseModel):
     class Config:
         from_attributes = True
 
-class CostumerUpdate(BaseModel):
+class CustomerUpdate(BaseModel):
     name: str | None = Field(default=None)
     telephone: str | None = Field(default=None)

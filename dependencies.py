@@ -10,11 +10,11 @@ from starlette import status
 from starlette.exceptions import HTTPException
 from jose import JWTError, jwt
 from api.models.admin import Admin
-from api.models.costumer import Costumer
+from api.models.customer import Customer
 from api.schemas.jwt_token import TokenData
 from api.schemas.user import UserScopes, User
 from api.services.admin import AdminService
-from api.services.costumer import CostumerService
+from api.services.customer import CustomerService
 
 load_dotenv()
 
@@ -29,12 +29,12 @@ oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="login",
     scopes={
         UserScopes.ADMIN.value: "Access to all urls",
-        UserScopes.COSTUMER.value: "Access to limited urls"
+        UserScopes.CUSTOMER.value: "Access to limited urls"
     },
 )
 
 admin_service = AdminService()
-costumer_service = CostumerService()
+costumer_service = CustomerService()
 
 async def get_api_key(X_API_Key: str = Security(api_key_header)):
     if X_API_Key == os.getenv("API_KEY"):
@@ -53,13 +53,13 @@ def get_password_hash(password: str):
     return pwd_context.hash(password)
 
 
-def authenticate_user(email: str, password: str, scope: UserScopes) -> Admin | Costumer | bool:
-    user: Admin | Costumer | None = None
+def authenticate_user(email: str, password: str, scope: UserScopes) -> Admin | Customer | bool:
+    user: Admin | Customer | None = None
 
     if scope == UserScopes.ADMIN.value:
         user = admin_service.get_admin_by_email(email)
-    elif scope == UserScopes.COSTUMER.value:
-        user = costumer_service.get_costumer_by_email(email)
+    elif scope == UserScopes.CUSTOMER.value:
+        user = costumer_service.get_customer_by_email(email)
 
     if not user:
         return False
@@ -109,15 +109,15 @@ def get_current_user(security_scopes: SecurityScopes, token: Annotated[str, Depe
                 headers={"WWW-Authenticate": authenticate_value},
             )
 
-    user: Admin | Costumer | None = None
+    user: Admin | Customer | None = None
     current_user_scope: UserScopes | None = None
 
     if token_data.scopes[0] == UserScopes.ADMIN.value:
         user = admin_service.get_admin_by_email(email)
         current_user_scope = UserScopes.ADMIN
-    elif token_data.scopes[0] == UserScopes.COSTUMER.value:
-        user = costumer_service.get_costumer_by_email(email)
-        current_user_scope = UserScopes.COSTUMER
+    elif token_data.scopes[0] == UserScopes.CUSTOMER.value:
+        user = costumer_service.get_customer_by_email(email)
+        current_user_scope = UserScopes.CUSTOMER
 
     if user is None:
         raise credentials_exception

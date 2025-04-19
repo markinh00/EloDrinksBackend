@@ -5,28 +5,28 @@ from fastapi import APIRouter
 from starlette.exceptions import HTTPException
 from starlette import status
 from api.models.admin import Admin
-from api.models.costumer import Costumer
+from api.models.customer import Customer
 from api.schemas.admin import AdminRegister
 from api.schemas.jwt_token import Token
-from api.schemas.costumer import CostumerRegister
+from api.schemas.customer import CustomerRegister
 from api.schemas.user import UserScopes
 from api.services.admin import AdminService
-from api.services.costumer import CostumerService
+from api.services.customer import CustomerService
 from dependencies import create_access_token, get_password_hash
 
 router = APIRouter(prefix="/register", tags=["Auth"])
 
 admin_service = AdminService()
-user_service = CostumerService()
+user_service = CustomerService()
 
 load_dotenv()
 
 ACCESS_TOKEN_EXPIRE_MINUTES = float(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 @router.post("/", response_model=Token)
-def register_user(role: UserScopes, user_data: AdminRegister | CostumerRegister) -> Token:
+def register_user(role: UserScopes, user_data: AdminRegister | CustomerRegister) -> Token:
     try:
-        result: Admin | Costumer | None = None
+        result: Admin | Customer | None = None
 
         if user_data.password != user_data.confirmPassword:
             raise HTTPException(
@@ -41,8 +41,8 @@ def register_user(role: UserScopes, user_data: AdminRegister | CostumerRegister)
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="A admin cannot be registered using this route!"
             )
-        elif role == UserScopes.COSTUMER:
-            result = user_service.create_costumer(user_data)
+        elif role == UserScopes.CUSTOMER:
+            result = user_service.create_customer(user_data)
 
         if not result:
             raise HTTPException(
