@@ -31,13 +31,16 @@ def register_user(role: UserScopes, user_data: AdminRegister | CostumerRegister)
         if user_data.password != user_data.confirmPassword:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="'password' and 'confirmPassword' must be the same value"
+                detail="'password' and 'confirmPassword' must be the same value!"
             )
 
         user_data.password = get_password_hash(user_data.password)
 
         if role == UserScopes.ADMIN:
-            result = admin_service.create_admin(user_data)
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="a admin cannot be registered using this route!"
+            )
         elif role == UserScopes.COSTUMER:
             result = user_service.create_costumer(user_data)
 
