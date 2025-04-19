@@ -19,7 +19,7 @@ app.add_middleware(
 
 app.include_router(register.router)
 app.include_router(login.router)
-app.include_router(costumer.router)
+app.include_router(customer.router)
 app.include_router(bar_structure.router)
 
 @app.get("/")
