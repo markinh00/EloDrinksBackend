@@ -25,6 +25,10 @@ class CustomerRepository:
     def get_by_id(self, customer_id: int) -> Optional[Customer]:
         return  self.session.get(Customer, customer_id)
 
+    def get_by_email(self, customer_email: str) -> Optional[Customer]:
+        statement= select(Customer).where(Customer.email == customer_email)
+        return self.session.exec(statement).first()
+
     def search(self, params: CustomerSearchParams) -> list[Customer]:
         for key, value in params.model_dump().items():
             if value is not None:

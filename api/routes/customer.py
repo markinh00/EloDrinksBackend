@@ -33,7 +33,7 @@ def get_customer_by_id(
 
     return customer
 
-@router.get("/search/", response_model=list[CustomerRead])
+@router.get("/search/", dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value])], response_model=list[CustomerRead])
 def search_customer(search_queries: Annotated[CustomerSearchParams, Query()]):
     return service.search_customer(search_queries)
 

@@ -59,7 +59,7 @@ def authenticate_user(email: str, password: str, scope: UserScopes) -> Admin | C
     if scope == UserScopes.ADMIN.value:
         user = admin_service.get_admin_by_email(email)
     elif scope == UserScopes.CUSTOMER.value:
-        user = costumer_service.search_customer(email)
+        user = costumer_service.get_customer_by_email(email)
 
     if not user:
         return False

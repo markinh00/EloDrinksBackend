@@ -33,6 +33,9 @@ class CustomerService:
     def get_customer_by_id(self, customer_id: int) -> Optional[Customer]:
         return self.repository.get_by_id(customer_id)
 
+    def get_customer_by_email(self, customer_email) -> Optional[Customer]:
+        return self.repository.get_by_email(customer_email)
+
     def search_customer(self, params: CustomerSearchParams) -> list[Customer]:
         return self.repository.search(params)
 
