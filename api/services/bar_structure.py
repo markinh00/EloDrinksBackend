@@ -15,8 +15,8 @@ class BarStructureService:
     def get_bar_by_id(self, bar_id: int) -> Optional[BarStructure]:
         return self.repository.get_by_id(bar_id)
 
-    def get_all_bars(self) -> List[BarStructure]:
-        return self.repository.get_all()
+    def get_all_bars(self, page: int = 1, size: int = 10) -> List[BarStructure]:
+        return self.repository.get_all(page=page, size=size)
 
     def update_bar(self, bar_id: int, updated_data: dict) -> Optional[BarStructure]:
         return self.repository.update(bar_id, updated_data)
