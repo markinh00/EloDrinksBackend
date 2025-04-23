@@ -24,6 +24,11 @@ def get_all_bar_structures(page: int = Query(1, ge=1), size: int = Query(10, ge=
     return service.get_all_bars(page=page, size=size)
 
 
+@router.get("/search", response_model=List[BarStructureRead], dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value, UserScopes.CUSTOMER.value])])
+def search_bar_structures(name: str):
+    return service.search_bars(name=name)
+
+
 @router.get("/{bar_id}", response_model=BarStructureRead, dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value, UserScopes.CUSTOMER.value])])
 def get_bar_structure(bar_id: int):
     bar = service.get_bar_by_id(bar_id)
@@ -46,3 +51,4 @@ def delete_bar_structure(bar_id: int):
     if not success:
         raise HTTPException(status_code=404, detail="BarStructure not found")
     return {"detail": "BarStructure deleted successfully"}
+

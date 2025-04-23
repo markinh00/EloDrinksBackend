@@ -38,3 +38,7 @@ class BarStructureRepository:
         self.session.delete(bar_structure)
         self.session.commit()
         return True
+
+    def search(self, name: str) -> List[BarStructure]:
+        statement = select(BarStructure).where(BarStructure.name.contains(name))
+        return self.session.exec(statement).all()

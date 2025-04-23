@@ -23,3 +23,6 @@ class BarStructureService:
 
     def delete_bar(self, bar_id: int) -> bool:
         return self.repository.delete(bar_id)
+
+    def search_bars(self, name: str) -> List[BarStructure]:
+        return self.repository.search(name)
