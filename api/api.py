@@ -1,13 +1,11 @@
 from fastapi import FastAPI, Security
 from api.dependencies.auth import get_api_key
 from api.routes.auth import register, login
-from api.routes import bar_structure, customer
+from api.routes import bar_structure, customer, pack
 from fastapi.middleware.cors import CORSMiddleware
 
 
-app = FastAPI(
-    dependencies=[Security(get_api_key)]
-)
+app = FastAPI(dependencies=[Security(get_api_key)])
 
 app.add_middleware(
     CORSMiddleware,
@@ -21,6 +19,8 @@ app.include_router(register.router)
 app.include_router(login.router)
 app.include_router(customer.router)
 app.include_router(bar_structure.router)
+app.include_router(pack.router)
+
 
 @app.get("/")
 def read_root():
