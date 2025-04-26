@@ -1,6 +1,4 @@
 from typing import Optional
-
-from sqlalchemy import SelectBase
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select, desc
 from api.models.customer import Customer
