@@ -1,6 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter
-from fastapi.params import Security, Depends, Query
+from fastapi.params import Security, Query
 from starlette.exceptions import HTTPException
 from starlette import status
 from api.schemas.customer import CustomerRead, CustomerSearchParams, CustomerUpdate
@@ -35,14 +35,14 @@ def get_customer_by_id(
     return customer
 
 
-@router.get("/search/", dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value])], response_model=list[CustomerRead])
-def search_customer(search_queries: Annotated[CustomerSearchParams, Query()]):
-    return service.search_customer(search_queries)
-
-
 @router.get("/", response_model=list[CustomerRead], dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value])])
 def get_all_customers(query: Annotated[CustomerPagination, Query()]):
     return service.get_all_customers(query)
+
+
+@router.get("/search/", dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value])], response_model=list[CustomerRead])
+def search_customer(search_queries: Annotated[CustomerSearchParams, Query()]):
+    return service.search_customer(search_queries)
 
 
 @router.put("/{customer_id}", response_model=CustomerRead)

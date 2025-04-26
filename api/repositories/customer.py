@@ -1,6 +1,8 @@
 from typing import Optional
+
+from sqlalchemy import SelectBase
 from sqlalchemy.exc import IntegrityError
-from sqlmodel import Session, select
+from sqlmodel import Session, select, desc
 from api.models.customer import Customer
 from api.schemas.customer import CustomerUpdate, CustomerSearchParams
 from api.schemas.pagination import CustomerPagination
@@ -26,8 +28,12 @@ class CustomerRepository:
         return  self.session.get(Customer, customer_id)
 
     def get_by_email(self, customer_email: str) -> Optional[Customer]:
-        statement= select(Customer).where(Customer.email == customer_email)
-        return self.session.exec(statement).first()
+        try:
+            statement = select(Customer).where(Customer.email == customer_email)
+            return self.session.exec(statement).first()
+        except Exception as e:
+            self.session.rollback()
+            raise e
 
     def search(self, params: CustomerSearchParams) -> list[Customer]:
         for key, value in params.model_dump().items():
@@ -36,7 +42,10 @@ class CustomerRepository:
         return self.session.exec(statement).all()
 
     def get_all(self, query: CustomerPagination) -> list[Customer]:
-        statement = select(Customer).offset((query.page - 1) * query.size).limit(query.size).order_by(query.order.value)
+        statement = (select(Customer)
+                     .offset((query.page - 1) * query.size)
+                     .limit(query.size)
+                     .order_by(desc(query.order.value) if query.desc else query.order.value))
         return list(self.session.exec(statement).all())
 
     def update(self, customer_id: int, update_data: CustomerUpdate) -> Optional[Customer]:
