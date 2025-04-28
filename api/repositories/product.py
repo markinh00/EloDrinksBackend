@@ -19,8 +19,9 @@ class ProductRepository:
             self.session.commit()
             self.session.refresh(product)
             return product
-        except IntegrityError:
+        except IntegrityError as e:
             self.session.rollback()
+            print(e)
             return None
         except Exception as e:
             raise e
