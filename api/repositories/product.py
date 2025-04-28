@@ -21,7 +21,6 @@ class ProductRepository:
             return product
         except IntegrityError as e:
             self.session.rollback()
-            print(e)
             return None
         except Exception as e:
             raise e
