@@ -7,8 +7,8 @@ class SaleCreate(BaseModel):
     name: str
     discount_percentage: float
     expire_date: date
-    product_id: Optional[int]
-    pack_id: Optional[int]
+    product_id: Optional[int] = None
+    pack_id: Optional[int] = None
 
 
 class SaleRead(BaseModel):
@@ -27,5 +27,5 @@ class SaleUpdate(BaseModel):
     name: str
     discount_percentage: float
     expire_date: date
-    product_id: Optional[int]
-    pack_id: Optional[int]
+    product_id: Optional[int] = None
+    pack_id: Optional[int] = None
