@@ -1,4 +1,6 @@
 from typing import List, Optional
+from sqlalchemy.exc import IntegrityError
+from fastapi import HTTPException
 from api.models.sale import Sale
 from api.schemas.sale import SaleCreate
 from api.repositories.sale import SaleRepository
@@ -11,7 +13,13 @@ class SaleService:
 
     def create_sale(self, data: SaleCreate) -> Sale:
         sale = Sale(**data.model_dump())
-        return self.repository.create(sale)
+        try:
+            return self.repository.create(sale)
+        except IntegrityError:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid foreign key: product_id or pack_id does not exist",
+            )
 
     def get_all_sales(self, page: int = 1, size: int = 10) -> List[Sale]:
         return self.repository.get_all(page=page, size=size)
