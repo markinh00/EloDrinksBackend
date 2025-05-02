@@ -1,6 +1,6 @@
 # EloDrinksBackend
 
-Backend do projeto Elo Drinks
+Backend do projeto Elo Drinks.
 
 ## 🚀 Instalação e execução local
 Para instalar as dependências do projeto
