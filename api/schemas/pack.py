@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import List, Optional
 
 
 class PackCreate(BaseModel):
@@ -7,7 +7,8 @@ class PackCreate(BaseModel):
     event_type: str
     guest_count: int
     price: float
-    structure_id: Optional[int]
+    structure_id: Optional[int] = None
+    product_ids: List[int]
 
 
 class PackRead(BaseModel):
@@ -16,7 +17,7 @@ class PackRead(BaseModel):
     event_type: str
     guest_count: int
     price: float
-    structure_id: Optional[int]
+    structure_id: Optional[int] = None
 
     class Config:
         from_attributes = True
@@ -27,4 +28,5 @@ class PackUpdate(BaseModel):
     event_type: str
     guest_count: int
     price: float
-    structure_id: Optional[int]
+    structure_id: Optional[int] = None
+    product_ids: Optional[List[int]] = None

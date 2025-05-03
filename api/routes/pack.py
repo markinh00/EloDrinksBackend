@@ -72,7 +72,7 @@ def get_pack(pack_id: int):
     dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value])],
 )
 def update_pack(pack_id: int, updated_data: PackUpdate):
-    updated = service.update_pack(pack_id, updated_data.model_dump())
+    updated = service.update_pack(pack_id, updated_data)
     if not updated:
         raise HTTPException(status_code=404, detail="Pack not found")
     return updated
