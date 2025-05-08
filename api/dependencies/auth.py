@@ -116,7 +116,7 @@ def get_current_user(security_scopes: SecurityScopes, token: Annotated[str, Depe
         user = admin_service.get_admin_by_email(email)
         current_user_scope = UserScopes.ADMIN
     elif token_data.scopes[0] == UserScopes.CUSTOMER.value:
-        user = costumer_service.search_customer(email)
+        user = costumer_service.get_customer_by_email(email)
         current_user_scope = UserScopes.CUSTOMER
 
     if user is None:
