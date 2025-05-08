@@ -16,7 +16,6 @@ class CustomerRead(BaseModel):
     name: str
     telephone: str
     email: str
-    password: str
 
     class Config:
         from_attributes = True
