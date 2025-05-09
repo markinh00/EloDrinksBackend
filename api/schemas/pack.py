@@ -23,6 +23,7 @@ class PackRead(BaseModel):
     guest_count: int
     price: float
     structure_id: Optional[int] = None
+    products: List[ProductInPack]
 
     class Config:
         from_attributes = True

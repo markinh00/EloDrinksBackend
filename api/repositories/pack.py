@@ -3,7 +3,7 @@ from sqlmodel import delete, inspect, select, Session
 from api.models.pack import Pack
 from api.models.pack_product import PackHasProduct
 from api.models.product import Product
-from api.schemas.pack import PackSearchParams, PackUpdate
+from api.schemas.pack import PackRead, PackSearchParams, PackUpdate
 from api.schemas.product import ProductInPack
 
 
@@ -30,8 +30,30 @@ class PackRepository:
             delete(PackHasProduct).where(PackHasProduct.pack_id == pack_id)
         )
 
-    def get_by_id(self, pack_id: int) -> Optional[Pack]:
-        return self.session.get(Pack, pack_id)
+    def get_by_id(self, pack_id: int) -> Optional[PackRead]:
+        pack = self.session.get(Pack, pack_id)
+        if not pack:
+            return None
+
+        results = self.session.exec(
+            select(Product.id, PackHasProduct.quantity)
+            .join(PackHasProduct, Product.id == PackHasProduct.product_id)
+            .where(PackHasProduct.pack_id == pack_id)
+        ).all()
+
+        product_list = [
+            ProductInPack(id=prod_id, quantity=qty) for prod_id, qty in results
+        ]
+
+        return PackRead(
+            id=pack.id,
+            name=pack.name,
+            event_type=pack.event_type,
+            guest_count=pack.guest_count,
+            price=pack.price,
+            structure_id=pack.structure_id,
+            products=product_list,
+        )
 
     def get_all(self, page: int = 1, size: int = 10) -> List[Pack]:
         offset = (page - 1) * size
