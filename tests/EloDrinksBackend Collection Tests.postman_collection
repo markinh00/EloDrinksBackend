@@ -1,0 +1,878 @@
+{
+	"info": {
+		"_postman_id": "69edfde4-992d-4c50-9104-1a1238559fa9",
+		"name": "EloDrinksBackend Collection Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33378175",
+		"_collection_link": "https://red-zodiac-879129.postman.co/workspace/EloDrinksBackend~4409a358-03bb-4da4-afa2-e13311d2e75c/collection/27612938-69edfde4-992d-4c50-9104-1a1238559fa9?action=share&source=collection_link&creator=33378175"
+	},
+	"item": [
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "register test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Como não quero criar 10000 clientes no banco de dados, vou testar quando eu falho na criação.\r",
+									"\r",
+									"// Test for response status code\r",
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"  pm.response.to.have.status(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response content type is application/json\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Verify the structure of the response body\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{API_KEY}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}register/?role=costumer",
+							"host": [
+								"{{BASE_URL}}register"
+							],
+							"path": [
+								""
+							],
+							"query": [
+								{
+									"key": "role",
+									"value": "costumer"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Validate the response data type is JSON\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response time is within acceptable range\", function () {\r",
+									"  pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{API_KEY}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "admin@example.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "123456",
+									"type": "text"
+								},
+								{
+									"key": "scope",
+									"value": "admin",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}login/",
+							"host": [
+								"{{BASE_URL}}login"
+							],
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "customer",
+			"item": [
+				{
+					"name": "get customer test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Test for response time\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"// Test for response body properties\r",
+									"pm.test(\"Response body has 'id', 'name', 'telephone', 'email', and 'password' properties\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.have.property('id');\r",
+									"    pm.expect(responseBody).to.have.property('name');\r",
+									"    pm.expect(responseBody).to.have.property('telephone');\r",
+									"    pm.expect(responseBody).to.have.property('email');\r",
+									"    pm.expect(responseBody).to.have.property('password');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{API_KEY}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}customer/1",
+							"host": [
+								"{{BASE_URL}}customer"
+							],
+							"path": [
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "search customer test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test for status code\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Test for response time\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"// Test for response body properties and values\r",
+									"pm.test(\"Response body has the correct structure and values\", function () {\r",
+									"    const response = pm.response.json();\r",
+									"    pm.expect(response).to.be.an('array'); // Check if response is an array\r",
+									"    pm.expect(response).to.have.length.above(0); // Check if array has at least one element\r",
+									"    pm.expect(response[0]).to.have.property('id', 1); // Check if the first object has the correct 'id' value\r",
+									"    pm.expect(response[0]).to.have.property('name', 'testing update customer'); // Check if the first object has the correct 'name' value\r",
+									"    pm.expect(response[0]).to.have.property('telephone', '(00) 91234-5678'); // Check if the first object has the correct 'telephone' value\r",
+									"    pm.expect(response[0]).to.have.property('email', 'teste@example.com'); // Check if the first object has the correct 'email' value\r",
+									"    pm.expect(response[0]).to.have.property('password'); // Check if the first object has the 'password' property\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{API_KEY}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}customer/search/?name=update",
+							"host": [
+								"{{BASE_URL}}customer"
+							],
+							"path": [
+								"search",
+								""
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "update"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all customers test",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{API_KEY}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}customer/?page=1&size=10&order=name",
+							"host": [
+								"{{BASE_URL}}customer"
+							],
+							"path": [
+								""
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								},
+								{
+									"key": "order",
+									"value": "name"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update customer test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test for response status code\r",
+									"pm.test(\"Status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"// Test for response time\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"// Test for response body content\r",
+									"pm.test(\"Response contains 'detail' field with value 'User not found'\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('detail', 'User not found');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{API_KEY}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}customer/3",
+							"host": [
+								"{{BASE_URL}}customer"
+							],
+							"path": [
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete customer test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response schema for the deleted user\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.property('detail');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"  pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has the required field - detail\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData.detail).to.exist;\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{API_KEY}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}customer/3",
+							"host": [
+								"{{BASE_URL}}customer"
+							],
+							"path": [
+								"3"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "apikey",
+				"apikey": [
+					{
+						"key": "key",
+						"value": "API_KEY",
+						"type": "string"
+					},
+					{
+						"key": "value",
+						"value": "cacf29b4-0324-48e2-b356-da85e17995d5",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "bar structure",
+			"item": [
+				{
+					"name": "search bar structure",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{API_KEY}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}structure/search?name=t",
+							"host": [
+								"{{BASE_URL}}structure"
+							],
+							"path": [
+								"search"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "t"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "search bar structure test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test for status code\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Test for response time\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"// Test for content type\r",
+									"pm.test(\"Content type is JSON\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});\r",
+									"\r",
+									"// Test for specific fields in the response\r",
+									"const responseBody = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Each object has an 'id' field\", function () {\r",
+									"    responseBody.forEach((obj) => {\r",
+									"        pm.expect(obj.id).to.exist;\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Each object has a 'name' field\", function () {\r",
+									"    responseBody.forEach((obj) => {\r",
+									"        pm.expect(obj.name).to.exist;\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Each object has a 'price' field\", function () {\r",
+									"    responseBody.forEach((obj) => {\r",
+									"        pm.expect(obj.price).to.exist;\r",
+									"    });\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{API_KEY}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}structure/search?name=t",
+							"host": [
+								"{{BASE_URL}}structure"
+							],
+							"path": [
+								"search"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "t"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "packs",
+			"item": [
+				{
+					"name": "get pack by id test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test for the existence and data type of the 'id' field in the response body\r",
+									"pm.test('Verify the existence and data type of the id field', () => {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody.id).to.exist;\r",
+									"    pm.expect(responseBody.id).to.be.a('number');\r",
+									"});\r",
+									"\r",
+									"// Test for the existence and data type of the 'name' field in the response body\r",
+									"pm.test('Verify the existence and data type of the name field', () => {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody.name).to.exist;\r",
+									"    pm.expect(responseBody.name).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"// Test for the existence and data type of the 'event_type' field in the response body\r",
+									"pm.test('Verify the existence and data type of the event_type field', () => {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody.event_type).to.exist;\r",
+									"    pm.expect(responseBody.event_type).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"// Test for the existence and data type of the 'guest_count' field in the response body\r",
+									"pm.test('Verify the existence and data type of the guest_count field', () => {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody.guest_count).to.exist;\r",
+									"    pm.expect(responseBody.guest_count).to.be.a('number');\r",
+									"});\r",
+									"\r",
+									"// Test for the existence and data type of the 'price' field in the response body\r",
+									"pm.test('Verify the existence and data type of the price field', () => {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody.price).to.exist;\r",
+									"    pm.expect(responseBody.price).to.be.a('number');\r",
+									"});\r",
+									"\r",
+									"// Test for the existence and data type of the 'structure_id' field in the response body\r",
+									"pm.test('Verify the existence and data type of the structure_id field', () => {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody.structure_id).to.exist;\r",
+									"    pm.expect(responseBody.structure_id).to.be.a('number');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{API_KEY}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}packs/1",
+							"host": [
+								"{{BASE_URL}}packs"
+							],
+							"path": [
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "search pack test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test 1: Check if the response status code is 200\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Test 2: Verify the content type is 'application/json'\r",
+									"pm.test(\"Content type is json\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});\r",
+									"\r",
+									"// Test 3: Validate the structure of the response body\r",
+									"pm.test(\"Response body has the expected structure\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array');\r",
+									"    pm.expect(responseBody).to.have.length(2);\r",
+									"    pm.expect(responseBody[0]).to.have.property('id');\r",
+									"    pm.expect(responseBody[0]).to.have.property('name');\r",
+									"    pm.expect(responseBody[0]).to.have.property('event_type');\r",
+									"    pm.expect(responseBody[0]).to.have.property('guest_count');\r",
+									"    pm.expect(responseBody[0]).to.have.property('price');\r",
+									"    pm.expect(responseBody[0]).to.have.property('structure_id');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{API_KEY}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}packs/search?name=t",
+							"host": [
+								"{{BASE_URL}}packs"
+							],
+							"path": [
+								"search"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "t"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "products",
+			"item": [
+				{
+					"name": "create product test",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{API_KEY}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}product/",
+							"host": [
+								"{{BASE_URL}}product"
+							],
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "cacf29b4-0324-48e2-b356-da85e17995d5",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "API_KEY",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
