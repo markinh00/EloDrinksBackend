@@ -2,9 +2,9 @@ name: Run Postman Tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 jobs:
   run-postman-tests:
@@ -24,7 +24,7 @@ jobs:
 
     - name: Run Postman Collection
       run: |
-        newman run tests/EloDrinksBackend Collection Tests.postman_collection.json \
+        newman run tests/EloDrinksBackend_Collection_Tests.postman_collection.json \
           -e tests/prod.postman_environment.json \
           --delay-request 100 \
           --reporters cli,json \
