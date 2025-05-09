@@ -1,8 +1,5 @@
-from typing import List, Optional
-from sqlmodel import Relationship, SQLModel, Field
-
-from api.models.pack_product import PackHasProduct
-from api.models.product import Product
+from typing import Optional
+from sqlmodel import SQLModel, Field
 
 
 class Pack(SQLModel, table=True):
@@ -13,4 +10,3 @@ class Pack(SQLModel, table=True):
     name: str
     event_type: str
     guest_count: int
-    products: List["Product"] = Relationship(link_model=PackHasProduct)

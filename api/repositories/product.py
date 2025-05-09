@@ -9,6 +9,7 @@ from api.services.db.cloudinary.database import Cloudinary
 
 load_dotenv()
 
+
 class ProductRepository:
     def __init__(self, session: Session):
         self.session = session
@@ -32,10 +33,12 @@ class ProductRepository:
         return self.session.exec(statement).all()
 
     def get_all(self, query: ProductPagination) -> list[Product]:
-        statement = (select(Product)
-                     .offset((query.page - 1) * query.size)
-                     .limit(query.size)
-                     .order_by(desc(query.order.value) if query.desc else query.order.value))
+        statement = (
+            select(Product)
+            .offset((query.page - 1) * query.size)
+            .limit(query.size)
+            .order_by(desc(query.order.value) if query.desc else query.order.value)
+        )
         return list(self.session.exec(statement).all())
 
     def get_all_categories(self) -> list[str]:

@@ -27,7 +27,6 @@ def create_pack(pack_data: PackCreate):
 
 @router.get(
     "/",
-    response_model=List[PackRead],
     dependencies=[
         Security(
             get_current_user, scopes=[UserScopes.ADMIN.value, UserScopes.CUSTOMER.value]

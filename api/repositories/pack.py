@@ -59,10 +59,14 @@ class PackRepository:
             products=product_list,
         )
 
-    def get_all(self, page: int = 1, size: int = 10) -> List[Pack]:
-        offset = (page - 1) * size
-        statement = select(Pack).offset(offset).limit(size)
-        return self.session.exec(statement).all()
+    def get_all(self, page: int = 1, size: int = 10) -> List[PackRead]:
+        try:
+            offset = (page - 1) * size
+            statement = select(Pack).offset(offset).limit(size)
+            return self.session.exec(statement).all()
+        except Exception as e:
+            self.session.rollback()
+            raise e
 
     def search(self, params: PackSearchParams) -> List[Pack]:
         for key, value in params.model_dump().items():
