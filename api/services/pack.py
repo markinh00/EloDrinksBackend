@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from sqlmodel import select
 from api.models.pack import Pack
 from api.models.product import Product
-from api.schemas.pack import PackCreate, PackUpdate
+from api.schemas.pack import PackCreate, PackSearchParams, PackUpdate
 from api.repositories.pack import PackRepository
 from api.services.db.sqlmodel.database import get_session
 
@@ -36,8 +36,8 @@ class PackService:
     def get_pack_by_id(self, pack_id: int) -> Optional[Pack]:
         return self.repository.get_by_id(pack_id)
 
-    def search_packs(self, name: str) -> List[Pack]:
-        return self.repository.search_by_name(name)
+    def search_packs(self, search_queries: PackSearchParams) -> List[Pack]:
+        return self.repository.search(search_queries)
 
     def update_pack(self, pack_id: int, updated_data: PackUpdate) -> Optional[Pack]:
         if updated_data.products:

@@ -2,7 +2,8 @@ from typing import List, Optional
 from sqlmodel import delete, inspect, select, Session
 from api.models.pack import Pack
 from api.models.pack_product import PackHasProduct
-from api.schemas.pack import PackUpdate
+from api.models.product import Product
+from api.schemas.pack import PackSearchParams, PackUpdate
 from api.schemas.product import ProductInPack
 
 
@@ -37,8 +38,20 @@ class PackRepository:
         statement = select(Pack).offset(offset).limit(size)
         return self.session.exec(statement).all()
 
-    def search_by_name(self, name: str) -> List[Pack]:
-        statement = select(Pack).where(Pack.name.ilike(f"%{name}%"))
+    def search(self, params: PackSearchParams) -> List[Pack]:
+        for key, value in params.model_dump().items():
+            if value is not None:
+                if key == "product_name":
+                    product_ids = self.session.exec(
+                        select(Product.id)
+                        .distinct()
+                        .where(Product.name.contains(value))
+                    ).all()
+                    statement = select(Pack).where(
+                        Pack.products.any(PackHasProduct.product_id.in_(product_ids))
+                    )
+                else:
+                    statement = select(Pack).where(getattr(Pack, key).contains(value))
         return self.session.exec(statement).all()
 
     def update(self, pack_id: int, updated_data: PackUpdate) -> Optional[Pack]:

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Query
-from typing import List
+from typing import Annotated, List
 from fastapi.params import Security
 
 from api.dependencies.auth import get_current_user
@@ -7,6 +7,7 @@ from api.schemas.user import UserScopes
 from api.schemas.pack import (
     PackCreate,
     PackRead,
+    PackSearchParams,
     PackUpdate,
 )
 from api.services.pack import PackService
@@ -46,8 +47,8 @@ def get_all_packs(page: int = Query(1, ge=1), size: int = Query(10, ge=1, le=100
         )
     ],
 )
-def search_packs(name: str):
-    return service.search_packs(name=name)
+def search_packs(search_queries: Annotated[PackSearchParams, Query()]):
+    return service.search_packs(search_queries)
 
 
 @router.get(
