@@ -3,6 +3,7 @@ from sqlmodel import delete, inspect, select, Session
 from api.models.pack import Pack
 from api.models.pack_product import PackHasProduct
 from api.schemas.pack import PackUpdate
+from api.schemas.product import ProductInPack
 
 
 class PackRepository:
@@ -14,9 +15,12 @@ class PackRepository:
         self.session.flush()
         return pack
 
-    def add_products_to_pack(self, pack_id: int, product_ids: List[int]) -> None:
+    def add_products_to_pack(self, pack_id: int, products: List[ProductInPack]) -> None:
         relations = [
-            PackHasProduct(pack_id=pack_id, product_id=pid) for pid in product_ids
+            PackHasProduct(
+                pack_id=pack_id, product_id=product.id, quantity=product.quantity
+            )
+            for product in products
         ]
         self.session.add_all(relations)
 

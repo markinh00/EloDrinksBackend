@@ -41,7 +41,8 @@ class ProductSearchParams(BaseModel):
     def validate_field(self) -> Self:
         counter: int = 0
         for field, _ in self.model_dump().items():
-            if self.model_dump()[field] is not None: counter = counter + 1
+            if self.model_dump()[field] is not None:
+                counter = counter + 1
             if counter >= 2:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
@@ -74,3 +75,7 @@ class ProductUpdate(BaseModel):
                 detail="deleting and updating a image is not possible!"
             )
         return self
+    
+class ProductInPack(BaseModel):
+    id: int
+    quantity: int

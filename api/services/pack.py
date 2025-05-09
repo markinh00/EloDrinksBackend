@@ -15,16 +15,17 @@ class PackService:
         self.repository = PackRepository(session=self.session)
 
     def create_pack(self, data: PackCreate) -> Pack:
+        product_ids = [product.id for product in data.products]
         products = self.session.exec(
-            select(Product).where(Product.id.in_(data.product_ids))
+            select(Product).where(Product.id.in_(product_ids))
         ).all()
 
-        if len(products) != len(data.product_ids):
+        if len(products) != len(product_ids):
             raise HTTPException(status_code=400, detail="Some product_ids are invalid")
 
-        pack = Pack(**data.model_dump())
+        pack = Pack(**data.model_dump(exclude={"products"}))
         pack = self.repository.create(pack)
-        self.repository.add_products_to_pack(pack.id, data.product_ids)
+        self.repository.add_products_to_pack(pack.id, data.products)
         self.session.commit()
         self.session.refresh(pack)
         return pack
@@ -39,12 +40,13 @@ class PackService:
         return self.repository.search_by_name(name)
 
     def update_pack(self, pack_id: int, updated_data: PackUpdate) -> Optional[Pack]:
-        if updated_data.product_ids:
+        if updated_data.products:
+            product_ids = [product.id for product in updated_data.products]
             products = self.session.exec(
-                select(Product).where(Product.id.in_(updated_data.product_ids))
+                select(Product).where(Product.id.in_(product_ids))
             ).all()
 
-            if len(products) != len(updated_data.product_ids):
+            if len(products) != len(product_ids):
                 raise HTTPException(
                     status_code=400, detail="Some product_ids are invalid"
                 )
@@ -53,9 +55,9 @@ class PackService:
         if not pack:
             return None
 
-        if updated_data.product_ids is not None:
+        if updated_data.products is not None:
             self.repository.remove_all_products_from_pack(pack_id)
-            self.repository.add_products_to_pack(pack_id, updated_data.product_ids)
+            self.repository.add_products_to_pack(pack_id, updated_data.products)
 
         self.session.commit()
         self.session.refresh(pack)

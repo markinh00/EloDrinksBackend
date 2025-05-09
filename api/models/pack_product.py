@@ -11,3 +11,4 @@ class PackHasProduct(SQLModel, table=True):
     product_id: Optional[int] = Field(
         default=None, foreign_key="product.id", primary_key=True
     )
+    quantity: Optional[int] = Field(default=None, nullable=False)

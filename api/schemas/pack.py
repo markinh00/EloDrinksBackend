@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional
+from api.schemas.product import ProductInPack
 
 
 class PackCreate(BaseModel):
@@ -8,7 +9,7 @@ class PackCreate(BaseModel):
     guest_count: int
     price: float
     structure_id: Optional[int] = None
-    product_ids: List[int]
+    products: List[ProductInPack]
 
 
 class PackRead(BaseModel):
@@ -29,4 +30,4 @@ class PackUpdate(BaseModel):
     guest_count: int
     price: float
     structure_id: Optional[int] = None
-    product_ids: Optional[List[int]] = None
+    products: Optional[List[ProductInPack]] = None

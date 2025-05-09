@@ -58,7 +58,7 @@ def get_product_by_id(product_id: int):
     if not result:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Product not found"
+            detail="Product not found"
         )
 
     return  result
