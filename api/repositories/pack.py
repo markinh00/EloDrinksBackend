@@ -12,9 +12,13 @@ class PackRepository:
         self.session = session
 
     def create(self, pack: Pack) -> Pack:
-        self.session.add(pack)
-        self.session.flush()
-        return pack
+        try:
+            self.session.add(pack)
+            self.session.flush()
+            return pack
+        except Exception as e:
+            self.session.rollback()
+            raise e
 
     def add_products_to_pack(self, pack_id: int, products: List[ProductInPack]) -> None:
         relations = [
