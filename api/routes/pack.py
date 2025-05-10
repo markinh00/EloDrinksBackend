@@ -9,6 +9,7 @@ from api.schemas.pack import (
     PackRead,
     PackSearchParams,
     PackUpdate,
+    PackWithoutProductsRead,
 )
 from api.services.pack import PackService
 
@@ -18,7 +19,7 @@ service = PackService()
 
 @router.post(
     "/",
-    response_model=PackRead,
+    response_model=PackWithoutProductsRead,
     dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value])],
 )
 def create_pack(pack_data: PackCreate):

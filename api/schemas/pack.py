@@ -62,3 +62,15 @@ class PackSearchParams(BaseModel):
                 detail="a parameter is needed for the search!",
             )
         return self
+
+
+class PackWithoutProductsRead(BaseModel):
+    id: int
+    name: str
+    event_type: str
+    guest_count: int
+    price: float
+    structure_id: Optional[int] = None
+
+    class Config:
+        from_attributes = True

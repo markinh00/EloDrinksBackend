@@ -3,7 +3,12 @@ from sqlmodel import delete, inspect, select, Session
 from api.models.pack import Pack
 from api.models.pack_product import PackHasProduct
 from api.models.product import Product
-from api.schemas.pack import PackRead, PackSearchParams, PackUpdate
+from api.schemas.pack import (
+    PackRead,
+    PackSearchParams,
+    PackUpdate,
+    PackWithoutProductsRead,
+)
 from api.schemas.product import ProductInPack
 
 
@@ -59,6 +64,15 @@ class PackRepository:
             products=product_list,
         )
 
+    def get_by_id_without_products(
+        self, pack_id: int
+    ) -> Optional[PackWithoutProductsRead]:
+        pack = self.session.get(Pack, pack_id)
+        if not pack:
+            return None
+
+        return pack
+
     def get_all(self, page: int = 1, size: int = 10) -> List[PackRead]:
         try:
             offset = (page - 1) * size
@@ -105,7 +119,7 @@ class PackRepository:
             delete(PackHasProduct).where(PackHasProduct.pack_id == pack_id)
         )
 
-        pack = self.get_by_id(pack_id)
+        pack = self.get_by_id_without_products(pack_id)
         if not pack:
             return False
 
