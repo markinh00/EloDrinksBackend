@@ -10,6 +10,7 @@ from api.schemas.pack import (
     PackWithoutProductsRead,
 )
 from api.schemas.product import ProductInPack
+from sqlalchemy import and_
 
 
 class PackRepository:
@@ -82,21 +83,51 @@ class PackRepository:
             self.session.rollback()
             raise e
 
-    def search(self, params: PackSearchParams) -> List[Pack]:
+    def search(self, params: PackSearchParams) -> List[PackRead]:
+        filters = []
+
         for key, value in params.model_dump().items():
             if value is not None:
                 if key == "product_name":
                     product_ids = self.session.exec(
-                        select(Product.id)
-                        .distinct()
-                        .where(Product.name.contains(value))
+                        select(Product.id).where(Product.name.contains(value))
                     ).all()
-                    statement = select(Pack).where(
-                        Pack.products.any(PackHasProduct.product_id.in_(product_ids))
-                    )
+                    filters.append(PackHasProduct.product_id.in_(product_ids))
                 else:
-                    statement = select(Pack).where(getattr(Pack, key).contains(value))
-        return self.session.exec(statement).all()
+                    filters.append(getattr(Pack, key).contains(value))
+
+        if params.product_name:
+            statement = select(Pack).join(PackHasProduct).where(and_(*filters))
+        else:
+            statement = select(Pack).where(and_(*filters))
+
+        packs = self.session.exec(statement).all()
+
+        result = []
+        for pack in packs:
+            products = self.session.exec(
+                select(Product, PackHasProduct.quantity)
+                .join(PackHasProduct, Product.id == PackHasProduct.product_id)
+                .where(PackHasProduct.pack_id == pack.id)
+            ).all()
+
+            product_in_packs = [
+                ProductInPack(id=product.id, quantity=quantity)
+                for product, quantity in products
+            ]
+
+            pack_read = PackRead(
+                id=pack.id,
+                name=pack.name,
+                event_type=pack.event_type,
+                guest_count=pack.guest_count,
+                price=pack.price,
+                structure_id=pack.structure_id,
+                products=product_in_packs,
+            )
+            result.append(pack_read)
+
+        return result
 
     def update(self, pack_id: int, updated_data: PackUpdate) -> Optional[Pack]:
         pack = self.get_by_id(pack_id)
