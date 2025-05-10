@@ -65,3 +65,6 @@ class PackService:
 
     def delete_pack(self, pack_id: int) -> bool:
         return self.repository.delete(pack_id)
+
+
+# monkey deploy
