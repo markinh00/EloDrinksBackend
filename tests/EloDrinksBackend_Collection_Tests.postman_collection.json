@@ -93,6 +93,20 @@
 								"type": "text/javascript",
 								"packages": {}
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const jwt = responseJson.access_token;\r",
+									"\r",
+									"pm.environment.set('JWT_TOKEN', `${jwt}`);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
 						}
 					],
 					"request": {
@@ -836,6 +850,10 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "sales",
+			"item": []
 		}
 	],
 	"auth": {
