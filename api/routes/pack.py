@@ -69,7 +69,7 @@ def get_pack(pack_id: int):
 
 @router.put(
     "/{pack_id}",
-    response_model=PackRead,
+    response_model=PackWithoutProductsRead,
     dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value])],
 )
 def update_pack(pack_id: int, updated_data: PackUpdate):

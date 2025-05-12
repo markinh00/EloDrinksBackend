@@ -130,7 +130,7 @@ class PackRepository:
         return result
 
     def update(self, pack_id: int, updated_data: PackUpdate) -> Optional[Pack]:
-        pack = self.get_by_id(pack_id)
+        pack = self.get_by_id_without_products(pack_id)
         if not pack:
             return None
 
