@@ -28,3 +28,6 @@ class OrderService:
             customer_id=customer_id, page=page, size=size
         )
         return [OrderInDB(**order) for order in orders]
+
+    async def cancel_order(self, order_id: str) -> OrderInDB:
+        return await self.repository.update_status(order_id, "cancelled")
