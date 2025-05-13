@@ -20,3 +20,13 @@ class OrderRepository:
         async for order in cursor:
             orders.append(order)
         return orders
+
+    async def get_orders_by_customer_id(self, customer_id: int, page: int, size: int):
+        skip = (page - 1) * size
+        cursor = (
+            self.collection.find({"customer.id": customer_id}).skip(skip).limit(size)
+        )
+        orders = []
+        async for order in cursor:
+            orders.append(order)
+        return orders

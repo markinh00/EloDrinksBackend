@@ -20,3 +20,11 @@ class OrderService:
     async def get_all_orders(self, page: int, size: int) -> list[OrderInDB]:
         orders = await self.repository.get_all_orders(page=page, size=size)
         return [OrderInDB(**order) for order in orders]
+
+    async def get_orders_by_customer_id(
+        self, customer_id: int, page: int, size: int
+    ) -> list[OrderInDB]:
+        orders = await self.repository.get_orders_by_customer_id(
+            customer_id=customer_id, page=page, size=size
+        )
+        return [OrderInDB(**order) for order in orders]
