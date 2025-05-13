@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status
 from api.repositories.order import OrderRepository
-from api.schemas.order import OrderCreate, OrderInDB
+from api.schemas.order import OrderCreate, OrderInDB, OrderInDBWithId
 from api.services.db.mongodb.mongo_connection import (
     get_orders_collection,
 )
@@ -21,12 +21,12 @@ async def create_order(
     return await service.create_order(order)
 
 
-@router.get("/", response_model=list[OrderInDB])
+@router.get("/", response_model=list[OrderInDBWithId])
 async def get_orders(page: int = Query(1, ge=1), size: int = Query(10, ge=1, le=100)):
     return await service.get_all_orders(page=page, size=size)
 
 
-@router.get("/customer/{customer_id}", response_model=list[OrderInDB])
+@router.get("/customer/{customer_id}", response_model=list[OrderInDBWithId])
 async def get_orders_by_customer_id(
     customer_id: int, page: int = Query(1, ge=1), size: int = Query(10, ge=1, le=100)
 ):

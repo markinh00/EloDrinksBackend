@@ -1,5 +1,5 @@
 from datetime import datetime
-from api.schemas.order import OrderCreate, OrderInDB
+from api.schemas.order import OrderCreate, OrderInDB, OrderInDBWithId
 from api.repositories.order import OrderRepository
 
 
@@ -17,17 +17,17 @@ class OrderService:
         order_in_db = await self.repository.get_order_by_id(inserted_id)
         return order_in_db
 
-    async def get_all_orders(self, page: int, size: int) -> list[OrderInDB]:
+    async def get_all_orders(self, page: int, size: int) -> list[OrderInDBWithId]:
         orders = await self.repository.get_all_orders(page=page, size=size)
-        return [OrderInDB(**order) for order in orders]
+        return [OrderInDBWithId(**order) for order in orders]
 
     async def get_orders_by_customer_id(
         self, customer_id: int, page: int, size: int
-    ) -> list[OrderInDB]:
+    ) -> list[OrderInDBWithId]:
         orders = await self.repository.get_orders_by_customer_id(
             customer_id=customer_id, page=page, size=size
         )
-        return [OrderInDB(**order) for order in orders]
+        return [OrderInDBWithId(**order) for order in orders]
 
     async def cancel_order(self, order_id: str) -> OrderInDB:
         return await self.repository.update_status(order_id, "cancelled")

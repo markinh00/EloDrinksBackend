@@ -49,3 +49,14 @@ class OrderCreate(BaseModel):
 class OrderInDB(OrderCreate):
     created_at: datetime
     updated_at: datetime
+
+
+class OrderInDBWithId(OrderInDB):
+    id: ObjectId = Field(default_factory=ObjectId, alias="_id")
+
+    class Config:
+        json_encoders = {
+            ObjectId: lambda v: str(v),
+        }
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True
