@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Security
 from api.dependencies.auth import get_api_key
 from api.routes.auth import register, login
-from api.routes import bar_structure, customer, product, pack, sale
+from api.routes import bar_structure, customer, order, product, pack, sale
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -22,6 +22,8 @@ app.include_router(bar_structure.router)
 app.include_router(product.router)
 app.include_router(pack.router)
 app.include_router(sale.router)
+app.include_router(order.router)
+
 
 @app.get("/")
 def read_root():
