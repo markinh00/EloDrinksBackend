@@ -1,23 +1,22 @@
 from datetime import datetime
-from motor.motor_asyncio import AsyncIOMotorClient
-from bson import ObjectId
-from api.schemas.order import OrderCreate
-from api.services.db.mongodb.mongo_connection import (
-    connect_mongo,
-)
+from api.schemas.order import OrderCreate, OrderInDB
+from api.repositories.order import OrderRepository
 
 
 class OrderService:
-    def __init__(self):
-        self.client: AsyncIOMotorClient = connect_mongo()
-        self.db = self.client["elodrinks"]
-        self.collection = self.db["orders"]
+    def __init__(self, repository: OrderRepository):
+        self.repository = repository
 
-    async def create_order(self, order_data: OrderCreate) -> dict:
-        order_dict = order_data.model_dump()
+    async def create_order(self, order: OrderCreate) -> OrderInDB:
+        now = datetime.now()
+        order_dict = order.model_dump()
+        order_dict["created_at"] = now
+        order_dict["updated_at"] = now
 
-        result = await self.collection.insert_one(order_dict)
-        created_order = await self.collection.find_one({"_id": result.inserted_id})
+        inserted_id = await self.repository.insert_order(order_dict)
+        order_in_db = await self.repository.get_order_by_id(inserted_id)
+        return order_in_db
 
-        created_order["_id"] = str(created_order["_id"])
-        return created_order
+    async def get_all_orders(self, page: int, size: int) -> list[OrderInDB]:
+        orders = await self.repository.get_all_orders(page=page, size=size)
+        return [OrderInDB(**order) for order in orders]

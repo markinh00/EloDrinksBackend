@@ -1,28 +1,26 @@
-from fastapi import APIRouter, HTTPException, Depends, status
-from typing import List
-from datetime import datetime
-from bson import ObjectId
-from motor.motor_asyncio import AsyncIOMotorCollection
-
+from fastapi import APIRouter, status
+from api.repositories.order import OrderRepository
 from api.schemas.order import OrderCreate, OrderInDB
 from api.services.db.mongodb.mongo_connection import (
-    connect_mongo,
+    get_orders_collection,
 )
+from api.services.order import OrderService
+from fastapi import Query
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
+
+collection = get_orders_collection()
 
 
 @router.post("/", response_model=OrderInDB, status_code=status.HTTP_201_CREATED)
 async def create_order(
     order: OrderCreate,
-    collection: AsyncIOMotorCollection = Depends(connect_mongo),
 ):
-    now = datetime.now()
+    service = OrderService(OrderRepository(collection))
+    return await service.create_order(order)
 
-    order_dict = order.model_dump()
-    order_dict["created_at"] = now
-    order_dict["updated_at"] = now
 
-    result = await collection.insert_one(order_dict)
-    order_in_db = collection.find_one({"_id": result.inserted_id})
-    return order_in_db
+@router.get("/", response_model=list[OrderInDB])
+async def get_orders(page: int = Query(1, ge=1), size: int = Query(10, ge=1, le=100)):
+    service = OrderService(OrderRepository(collection))
+    return await service.get_all_orders(page=page, size=size)

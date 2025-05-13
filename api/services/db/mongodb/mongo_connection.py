@@ -1,23 +1,26 @@
+import logging
 import os
 from dotenv import load_dotenv
-from pymongo import MongoClient
-from pymongo.collection import Collection
-from pymongo.database import Database
+from motor.motor_asyncio import (
+    AsyncIOMotorClient,
+    AsyncIOMotorCollection,
+    AsyncIOMotorDatabase,
+)
 
 load_dotenv()
 
 MONGO_URI = os.getenv("MONGO_URI")
 MONGO_DATABASE = os.getenv("MONGO_DATABASE")
 
-client = MongoClient(MONGO_URI, maxPoolSize=50, minPoolSize=5)
+client = AsyncIOMotorClient(MONGO_URI)
 
 
-def connect_mongo(collection_name: str = "orders") -> tuple[Collection]:
+def get_orders_collection() -> AsyncIOMotorCollection:
     try:
-        db: Database = client[MONGO_DATABASE]
-        collection: Collection = db[collection_name]
-        print("Conexão estabelecida com sucesso.")
+        db: AsyncIOMotorDatabase = client[MONGO_DATABASE]
+        collection: AsyncIOMotorCollection = db["orders"]
+        logging.info("Asynchronous connection successfully established.")
         return collection
     except Exception as e:
-        print(f"Erro ao conectar ao banco de dados: {e}")
+        logging.error(f"Error connecting to the database: {e}")
         raise

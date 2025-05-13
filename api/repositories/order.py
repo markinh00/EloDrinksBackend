@@ -1,28 +1,22 @@
-from datetime import datetime, timezone, timedelta
-from motor.motor_asyncio import AsyncIOMotorClient
+from motor.motor_asyncio import AsyncIOMotorCollection
 from bson import ObjectId
-from api.schemas.order import OrderCreate
-from api.services.db.mongodb.mongo_connection import (
-    connect_mongo,
-)
-
-BR_TZ = timezone(timedelta(hours=-3))
 
 
 class OrderRepository:
-    def __init__(self):
-        self.client: AsyncIOMotorClient = connect_mongo()
-        self.db = self.client["elodrinks"]
-        self.collection = self.db["orders"]
+    def __init__(self, collection: AsyncIOMotorCollection):
+        self.collection = collection
 
-    async def create(self, order_data: OrderCreate) -> dict:
-        order_dict = order_data.model_dump()
-        order_dict["created_at"] = datetime.now(timezone.utc).astimezone(BR_TZ)
-        order_dict["updated_at"] = datetime.now(timezone.utc).astimezone(BR_TZ)
-
+    async def insert_order(self, order_dict: dict) -> ObjectId:
         result = await self.collection.insert_one(order_dict)
-        created_order = await self.collection.find_one({"_id": result.inserted_id})
+        return result.inserted_id
 
-        if created_order:
-            created_order["_id"] = str(created_order["_id"])
-        return created_order
+    async def get_order_by_id(self, order_id: ObjectId):
+        return await self.collection.find_one({"_id": order_id})
+
+    async def get_all_orders(self, page: int, size: int):
+        skip = (page - 1) * size
+        cursor = self.collection.find().skip(skip).limit(size)
+        orders = []
+        async for order in cursor:
+            orders.append(order)
+        return orders
