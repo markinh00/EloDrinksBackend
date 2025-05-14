@@ -1,7 +1,8 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from datetime import datetime
-from typing import List, Optional
+from typing import List
 from bson import ObjectId
+from pydantic import Field
 
 
 class Customer(BaseModel):
@@ -52,11 +53,4 @@ class OrderInDB(OrderCreate):
 
 
 class OrderInDBWithId(OrderInDB):
-    id: ObjectId = Field(default_factory=ObjectId, alias="_id")
-
-    class Config:
-        json_encoders = {
-            ObjectId: lambda v: str(v),
-        }
-        allow_population_by_field_name = True
-        arbitrary_types_allowed = True
+    id: str = Field(default_factory=lambda: str(ObjectId()))
