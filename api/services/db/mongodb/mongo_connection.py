@@ -24,3 +24,6 @@ def get_orders_collection() -> AsyncIOMotorCollection:
     except Exception as e:
         logging.error(f"Error connecting to the database: {e}")
         raise
+
+
+# asyncio é foda
