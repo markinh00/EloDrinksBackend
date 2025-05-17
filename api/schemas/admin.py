@@ -10,3 +10,8 @@ class AdminRegister(BaseModel):
 class AdminUpdate(BaseModel):
     name: str | None = Field(default=None)
     telephone: str | None = Field(default=None)
+
+class AdminRead(BaseModel):
+    name: str
+    email: str
+
