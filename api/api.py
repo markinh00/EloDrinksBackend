@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Security
 from api.dependencies.auth import get_api_key
-from api.routes.auth import register, login
+from api.routes.auth import register, login, me
 from api.routes import bar_structure, customer, order, product, pack, sale
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -17,6 +17,7 @@ app.add_middleware(
 
 app.include_router(register.router)
 app.include_router(login.router)
+app.include_router(me.router)
 app.include_router(customer.router)
 app.include_router(bar_structure.router)
 app.include_router(product.router)
