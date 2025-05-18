@@ -17,15 +17,19 @@ class OrderService:
         order_in_db = await self.repository.get_order_by_id(inserted_id)
         return order_in_db
 
-    async def get_all_orders(self, page: int, size: int) -> list[OrderInDBWithId]:
-        orders = await self.repository.get_all_orders(page=page, size=size)
+    async def get_all_orders(
+        self, page: int, size: int, deleted: bool
+    ) -> list[OrderInDBWithId]:
+        orders = await self.repository.get_all_orders(
+            page=page, size=size, deleted=deleted
+        )
         return [OrderInDBWithId(**order) for order in orders]
 
     async def get_orders_by_customer_id(
-        self, customer_id: int, page: int, size: int
+        self, customer_id: int, page: int, size: int, deleted: bool
     ) -> list[OrderInDBWithId]:
         orders = await self.repository.get_orders_by_customer_id(
-            customer_id=customer_id, page=page, size=size
+            customer_id=customer_id, page=page, size=size, deleted=deleted
         )
         return [OrderInDBWithId(**order) for order in orders]
 

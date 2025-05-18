@@ -13,27 +13,39 @@ class OrderRepository:
     async def get_order_by_id(self, order_id: ObjectId):
         return await self.collection.find_one({"_id": order_id})
 
-    async def get_all_orders(self, page: int, size: int):
+    async def get_all_orders(self, page: int, size: int, deleted: bool):
         skip = (page - 1) * size
-        cursor = (
-            self.collection.find({"order_status": {"$ne": "cancelled"}})
-            .skip(skip)
-            .limit(size)
-        )
+        if deleted:
+            cursor = self.collection.find().skip(skip).limit(size)
+        else:
+            cursor = (
+                self.collection.find({"order_status": {"$ne": "cancelled"}})
+                .skip(skip)
+                .limit(size)
+            )
         orders = []
         async for order in cursor:
             orders.append(order)
         return orders
 
-    async def get_orders_by_customer_id(self, customer_id: int, page: int, size: int):
+    async def get_orders_by_customer_id(
+        self, customer_id: int, page: int, size: int, deleted: bool
+    ):
         skip = (page - 1) * size
-        cursor = (
-            self.collection.find(
-                {"customer.id": customer_id, "order_status": {"$ne": "cancelled"}}
+        if deleted:
+            cursor = (
+                self.collection.find({"customer.id": customer_id})
+                .skip(skip)
+                .limit(size)
             )
-            .skip(skip)
-            .limit(size)
-        )
+        else:
+            cursor = (
+                self.collection.find(
+                    {"customer.id": customer_id, "order_status": {"$ne": "cancelled"}}
+                )
+                .skip(skip)
+                .limit(size)
+            )
         orders = []
         async for order in cursor:
             orders.append(order)

@@ -22,15 +22,24 @@ async def create_order(
 
 
 @router.get("/", response_model=list[OrderInDBWithId])
-async def get_orders(page: int = Query(1, ge=1), size: int = Query(10, ge=1, le=100)):
-    return await service.get_all_orders(page=page, size=size)
+async def get_orders(
+    page: int = Query(1, ge=1),
+    size: int = Query(10, ge=1, le=100),
+    deleted: bool = False,
+):
+    return await service.get_all_orders(page=page, size=size, deleted=deleted)
 
 
 @router.get("/customer/{customer_id}", response_model=list[OrderInDBWithId])
 async def get_orders_by_customer_id(
-    customer_id: int, page: int = Query(1, ge=1), size: int = Query(10, ge=1, le=100)
+    customer_id: int,
+    page: int = Query(1, ge=1),
+    size: int = Query(10, ge=1, le=100),
+    deleted: bool = False,
 ):
-    return await service.get_orders_by_customer_id(customer_id, page=page, size=size)
+    return await service.get_orders_by_customer_id(
+        customer_id, page=page, size=size, deleted=deleted
+    )
 
 
 @router.patch("/{order_id}/cancel", response_model=OrderInDB)
