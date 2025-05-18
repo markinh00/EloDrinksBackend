@@ -1,20 +1,20 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Depends
 from fastapi.params import Security
 from api.dependencies.auth import get_current_user
 from api.repositories.order import OrderRepository
 from api.schemas.order import OrderCreate, OrderInDB, OrderInDBWithId
 from api.schemas.user import UserScopes
-from api.services.db.mongodb.mongo_connection import (
-    get_orders_collection,
-)
+from api.services.db.mongodb.mongo_connection import get_orders_collection
 from api.services.order import OrderService
 from fastapi import Query
 from fastapi import HTTPException
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
-collection = get_orders_collection()
-service = OrderService(OrderRepository(collection))
+
+async def get_order_service():
+    collection = await get_orders_collection()
+    return OrderService(OrderRepository(collection))
 
 
 @router.post(
@@ -25,6 +25,7 @@ service = OrderService(OrderRepository(collection))
 )
 async def create_order(
     order: OrderCreate,
+    service: OrderService = Depends(get_order_service),
 ):
     return await service.create_order(order)
 
@@ -38,6 +39,7 @@ async def get_orders(
     page: int = Query(1, ge=1),
     size: int = Query(10, ge=1, le=100),
     deleted: bool = False,
+    service: OrderService = Depends(get_order_service),
 ):
     return await service.get_all_orders(page=page, size=size, deleted=deleted)
 
@@ -56,6 +58,7 @@ async def get_orders_by_customer_id(
     page: int = Query(1, ge=1),
     size: int = Query(10, ge=1, le=100),
     deleted: bool = False,
+    service: OrderService = Depends(get_order_service),
 ):
     return await service.get_orders_by_customer_id(
         customer_id, page=page, size=size, deleted=deleted
@@ -71,7 +74,10 @@ async def get_orders_by_customer_id(
         )
     ],
 )
-async def cancel_order(order_id: str):
+async def cancel_order(
+    order_id: str,
+    service: OrderService = Depends(get_order_service),
+):
     try:
         return await service.cancel_order(order_id)
     except ValueError as e:
