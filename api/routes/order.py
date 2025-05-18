@@ -1,6 +1,9 @@
 from fastapi import APIRouter, status
+from fastapi.params import Security
+from api.dependencies.auth import get_current_user
 from api.repositories.order import OrderRepository
 from api.schemas.order import OrderCreate, OrderInDB, OrderInDBWithId
+from api.schemas.user import UserScopes
 from api.services.db.mongodb.mongo_connection import (
     get_orders_collection,
 )
@@ -14,14 +17,23 @@ collection = get_orders_collection()
 service = OrderService(OrderRepository(collection))
 
 
-@router.post("/", response_model=OrderInDB, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    response_model=OrderInDB,
+    dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value])],
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_order(
     order: OrderCreate,
 ):
     return await service.create_order(order)
 
 
-@router.get("/", response_model=list[OrderInDBWithId])
+@router.get(
+    "/",
+    response_model=list[OrderInDBWithId],
+    dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value])],
+)
 async def get_orders(
     page: int = Query(1, ge=1),
     size: int = Query(10, ge=1, le=100),
@@ -30,7 +42,15 @@ async def get_orders(
     return await service.get_all_orders(page=page, size=size, deleted=deleted)
 
 
-@router.get("/customer/{customer_id}", response_model=list[OrderInDBWithId])
+@router.get(
+    "/customer/{customer_id}",
+    response_model=list[OrderInDBWithId],
+    dependencies=[
+        Security(
+            get_current_user, scopes=[UserScopes.ADMIN.value, UserScopes.CUSTOMER.value]
+        )
+    ],
+)
 async def get_orders_by_customer_id(
     customer_id: int,
     page: int = Query(1, ge=1),
@@ -42,7 +62,15 @@ async def get_orders_by_customer_id(
     )
 
 
-@router.patch("/{order_id}/cancel", response_model=OrderInDB)
+@router.patch(
+    "/{order_id}/cancel",
+    response_model=OrderInDB,
+    dependencies=[
+        Security(
+            get_current_user, scopes=[UserScopes.ADMIN.value, UserScopes.CUSTOMER.value]
+        )
+    ],
+)
 async def cancel_order(order_id: str):
     try:
         return await service.cancel_order(order_id)
