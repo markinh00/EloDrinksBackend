@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 from bson import ObjectId
 from pydantic import Field
 
@@ -45,6 +45,7 @@ class OrderCreate(BaseModel):
     location: str
     order_status: str
     budget: Budget
+    details: Optional[str] = None
 
 
 class OrderInDB(OrderCreate):
