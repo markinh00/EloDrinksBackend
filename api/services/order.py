@@ -21,7 +21,9 @@ class OrderService:
         self, page: int, size: int, deleted: bool
     ) -> list[OrderInDBWithId]:
         orders = self.repository.get_all_orders(page=page, size=size, deleted=deleted)
-        return [OrderInDBWithId(**order) for order in orders]
+        return [
+            OrderInDBWithId(**{**order, "_id": str(order["_id"])}) for order in orders
+        ]
 
     def get_orders_by_customer_id(
         self, customer_id: int, page: int, size: int, deleted: bool
@@ -29,7 +31,9 @@ class OrderService:
         orders = self.repository.get_orders_by_customer_id(
             customer_id=customer_id, page=page, size=size, deleted=deleted
         )
-        return [OrderInDBWithId(**order) for order in orders]
+        return [
+            OrderInDBWithId(**{**order, "_id": str(order["_id"])}) for order in orders
+        ]
 
     def cancel_order(self, order_id: str) -> OrderInDB:
         return self.repository.update_status(order_id, "cancelled")

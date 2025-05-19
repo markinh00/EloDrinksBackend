@@ -1,8 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import List, Optional
-from bson import ObjectId
-from pydantic import Field
 
 
 class Customer(BaseModel):
@@ -54,4 +52,6 @@ class OrderInDB(OrderCreate):
 
 
 class OrderInDBWithId(OrderInDB):
-    id: str = Field(default_factory=lambda: str(ObjectId()))
+    id: str = Field(alias="_id")
+
+    model_config = {"populate_by_name": True}
