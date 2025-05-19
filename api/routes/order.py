@@ -13,7 +13,7 @@ router = APIRouter(prefix="/orders", tags=["Orders"])
 
 
 async def get_order_service():
-    collection = await get_orders_collection()
+    collection = get_orders_collection()
     return OrderService(OrderRepository(collection))
 
 
@@ -27,7 +27,7 @@ async def create_order(
     order: OrderCreate,
     service: OrderService = Depends(get_order_service),
 ):
-    return await service.create_order(order)
+    return service.create_order(order)
 
 
 @router.get(
@@ -41,7 +41,7 @@ async def get_orders(
     deleted: bool = False,
     service: OrderService = Depends(get_order_service),
 ):
-    return await service.get_all_orders(page=page, size=size, deleted=deleted)
+    return service.get_all_orders(page=page, size=size, deleted=deleted)
 
 
 @router.get(
@@ -60,7 +60,7 @@ async def get_orders_by_customer_id(
     deleted: bool = False,
     service: OrderService = Depends(get_order_service),
 ):
-    return await service.get_orders_by_customer_id(
+    return service.get_orders_by_customer_id(
         customer_id, page=page, size=size, deleted=deleted
     )
 
@@ -79,6 +79,6 @@ async def cancel_order(
     service: OrderService = Depends(get_order_service),
 ):
     try:
-        return await service.cancel_order(order_id)
+        return service.cancel_order(order_id)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
