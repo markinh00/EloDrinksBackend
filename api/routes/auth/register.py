@@ -52,7 +52,7 @@ def register_user(role: UserScopes, user_data: AdminRegister | CustomerRegister)
 
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
-            data={"sub": result.email}, expires_delta=access_token_expires
+            data={"sub": result.email, "scopes": [UserScopes.CUSTOMER.value]}, expires_delta=access_token_expires
         )
 
         return Token(access_token=access_token, token_type="bearer")
