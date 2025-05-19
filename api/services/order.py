@@ -33,3 +33,6 @@ class OrderService:
 
     def cancel_order(self, order_id: str) -> OrderInDB:
         return self.repository.update_status(order_id, "cancelled")
+
+    def confirm_order(self, order_id: str) -> OrderInDB:
+        return self.repository.update_status(order_id, "confirmed")

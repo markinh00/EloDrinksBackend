@@ -82,3 +82,22 @@ async def cancel_order(
         return service.cancel_order(order_id)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.patch(
+    "/{order_id}/confirm",
+    response_model=OrderInDB,
+    dependencies=[
+        Security(
+            get_current_user, scopes=[UserScopes.ADMIN.value, UserScopes.CUSTOMER.value]
+        )
+    ],
+)
+async def confirm_order(
+    order_id: str,
+    service: OrderService = Depends(get_order_service),
+):
+    try:
+        return service.confirm_order(order_id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
