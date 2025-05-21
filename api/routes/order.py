@@ -45,6 +45,27 @@ async def get_orders(
 
 
 @router.get(
+    "/{order_id}",
+    response_model=OrderInDBWithId,
+    dependencies=[
+        Security(
+            get_current_user, scopes=[UserScopes.ADMIN.value, UserScopes.CUSTOMER.value]
+        )
+    ],
+)
+async def get_order_by_id(
+    order_id: str,
+    service: OrderService = Depends(get_order_service),
+):
+    order = service.get_order_by_id(order_id)
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Order not found"
+        )
+    return order
+
+
+@router.get(
     "/customer/{customer_id}",
     response_model=list[OrderInDBWithId],
     dependencies=[

@@ -1,4 +1,6 @@
 from datetime import datetime
+
+from bson import ObjectId
 from api.schemas.order import OrderCreate, OrderInDB, OrderInDBWithId
 from api.repositories.order import OrderRepository
 
@@ -34,6 +36,13 @@ class OrderService:
         return [
             OrderInDBWithId(**{**order, "_id": str(order["_id"])}) for order in orders
         ]
+
+    def get_order_by_id(self, order_id: str) -> OrderInDBWithId | None:
+        order_object_id = ObjectId(order_id)
+        order = self.repository.get_order_by_id(order_object_id)
+        if order:
+            return OrderInDBWithId(**{**order, "_id": str(order["_id"])})
+        return None
 
     def cancel_order(self, order_id: str) -> OrderInDB:
         return self.repository.update_status(order_id, "cancelled")
