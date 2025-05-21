@@ -20,7 +20,7 @@ async def get_order_service():
 @router.post(
     "/",
     response_model=OrderInDB,
-    dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value])],
+    dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value, UserScopes.CUSTOMER.value])],
     status_code=status.HTTP_201_CREATED,
 )
 async def create_order(
