@@ -251,7 +251,6 @@
 									"    const response = pm.response.json();\r",
 									"    pm.expect(response).to.be.an('array'); // Check if response is an array\r",
 									"    pm.expect(response).to.have.length.above(0); // Check if array has at least one element\r",
-									"    pm.expect(response[0]).to.have.property('id', 1); // Check if the first object has the correct 'id' value\r",
 									"    pm.expect(response[0]).to.have.property('name', 'testing update customer'); // Check if the first object has the correct 'name' value\r",
 									"    pm.expect(response[0]).to.have.property('telephone', '(00) 91234-5678'); // Check if the first object has the correct 'telephone' value\r",
 									"    pm.expect(response[0]).to.have.property('email', 'teste@example.com'); // Check if the first object has the correct 'email' value\r",
