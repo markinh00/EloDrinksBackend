@@ -74,3 +74,24 @@ class NotificationRepository:
         self.session.delete(notification)
         self.session.commit()
         return True
+
+    def mark_as_read(self, notification_id: int) -> Optional[Notification]:
+        notification = self.get_by_id(notification_id)
+
+        if not notification:
+            return None
+
+        notification.is_read = True
+        notification.updated_at = datetime.now()
+
+        try:
+            self.session.add(notification)
+            self.session.commit()
+            self.session.refresh(notification)
+            return notification
+        except IntegrityError:
+            self.session.rollback()
+            return None
+        except Exception as e:
+            self.session.rollback()
+            raise e

@@ -32,3 +32,8 @@ class NotificationService:
 
     def delete_notification(self, notification_id: int) -> bool:
         return self.repository.delete(notification_id)
+
+    def mark_notification_as_read(
+        self, notification_id: int
+    ) -> Optional[NotificationRead]:
+        return self.repository.mark_as_read(notification_id)

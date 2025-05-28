@@ -12,3 +12,4 @@ class Notification(SQLModel, table=True):
     page: str
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
+    is_read: bool = Field(default=False)

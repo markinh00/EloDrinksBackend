@@ -92,3 +92,19 @@ def delete_notification(
         raise HTTPException(status_code=404, detail="Notification not found")
 
     return success
+
+
+@router.post(
+    "/{notification_id}/read",
+    response_model=NotificationRead,
+    dependencies=[
+        Security(
+            get_current_user, scopes=[UserScopes.ADMIN.value, UserScopes.CUSTOMER.value]
+        )
+    ],
+)
+def mark_notification_as_read(notification_id: int):
+    notification = service.mark_notification_as_read(notification_id)
+    if not notification:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    return notification
