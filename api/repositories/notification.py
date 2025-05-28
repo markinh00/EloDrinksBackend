@@ -1,6 +1,6 @@
 from typing import List, Optional
 from sqlalchemy.exc import IntegrityError
-from sqlmodel import Session, select
+from sqlmodel import Session, desc, select
 
 from api.models.notification import Notification
 from api.schemas.notification import NotificationCreate, NotificationUpdate
@@ -35,6 +35,7 @@ class NotificationRepository:
         statement = (
             select(Notification)
             .where(Notification.customer_id == customer_id)
+            .order_by(desc(Notification.created_at))
             .offset(offset)
             .limit(size)
         )
