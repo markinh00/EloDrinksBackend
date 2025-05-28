@@ -20,8 +20,10 @@ class NotificationService:
     def get_notification(self, notification_id: int) -> Optional[NotificationRead]:
         return self.repository.get_by_id(notification_id)
 
-    def list_notifications(self, page: int, size: int) -> List[NotificationRead]:
-        return self.repository.get_all(page, size)
+    def list_notifications_by_customer(
+        self, customer_id: int, page: int, size: int
+    ) -> List[NotificationRead]:
+        return self.repository.get_all_from_customer(customer_id, page, size)
 
     def update_notification(
         self, notification_id: int, data: NotificationUpdate

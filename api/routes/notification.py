@@ -48,7 +48,7 @@ def get_notification(notification_id: int):
 
 
 @router.get(
-    "/",
+    "/customer/{customer_id}",
     response_model=list[NotificationRead],
     dependencies=[
         Security(
@@ -56,8 +56,12 @@ def get_notification(notification_id: int):
         )
     ],
 )
-async def list_notifications(page: int = 1, size: int = 10):
-    return service.list_notifications(page, size)
+async def list_notifications_by_customer(
+    customer_id: int,
+    page: int = 1,
+    size: int = 10,
+):
+    return service.list_notifications_by_customer(customer_id, page, size)
 
 
 @router.patch(

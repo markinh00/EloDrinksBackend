@@ -28,9 +28,16 @@ class NotificationRepository:
     def get_by_id(self, notification_id: int) -> Optional[Notification]:
         return self.session.get(Notification, notification_id)
 
-    def get_all(self, page: int, size: int) -> List[Notification]:
+    def get_all_from_customer(
+        self, customer_id: int, page: int, size: int
+    ) -> List[Notification]:
         offset = (page - 1) * size
-        statement = select(Notification).offset(offset).limit(size)
+        statement = (
+            select(Notification)
+            .where(Notification.customer_id == customer_id)
+            .offset(offset)
+            .limit(size)
+        )
         return list(self.session.exec(statement).all())
 
     def update(
