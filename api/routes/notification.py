@@ -67,7 +67,7 @@ async def list_notifications_by_customer(
 @router.patch(
     "/{notification_id}",
     response_model=NotificationRead,
-    dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value])],
+    dependencies=[Security(get_current_user, scopes=[UserScopes.CUSTOMER.value])],
 )
 def update_notification(
     notification_id: int,
