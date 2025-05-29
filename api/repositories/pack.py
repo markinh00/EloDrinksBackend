@@ -1,3 +1,4 @@
+import json
 from typing import List, Optional
 from sqlmodel import delete, inspect, select, Session
 from api.models.pack import Pack
@@ -98,10 +99,31 @@ class PackRepository:
         return pack
 
     def get_all(self, page: int = 1, size: int = 10) -> List[PackRead]:
+        cache_key = f"packs:page:{page}:size:{size}"
+        try:
+            cached_packs_json = self.redis_client.get(cache_key)
+            if cached_packs_json:
+                cached_packs = json.loads(cached_packs_json)
+                if cached_packs:
+                    return [
+                        PackWithoutProductsRead.model_validate(pack)
+                        for pack in cached_packs
+                    ]
+        except redis.RedisError as e:
+            print(f"Redis error accessing {cache_key}: {e}")
+
+        # If not found in cache, fetch from database
         try:
             offset = (page - 1) * size
             statement = select(Pack).offset(offset).limit(size)
-            return self.session.exec(statement).all()
+            packs = self.session.exec(statement).all()
+            if packs:
+                list_of_packs_dict = [p.model_dump() for p in packs]
+                packs_json = json.dumps(list_of_packs_dict)
+                self.redis_client.setex(
+                    name=cache_key, time=self.CACHE_TTL_SECONDS, value=packs_json
+                )
+            return packs
         except Exception as e:
             self.session.rollback()
             raise e
