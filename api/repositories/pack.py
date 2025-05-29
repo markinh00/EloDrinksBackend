@@ -166,6 +166,8 @@ class PackRepository:
         self.session.add(pack)
         self.session.commit()
         self.session.refresh(pack)
+        if self.redis_client.exists(f"pack:{pack_id}"):
+            self.redis_client.delete(f"pack:{pack_id}")
         return pack
 
     def delete(self, pack_id: int) -> bool:
@@ -179,4 +181,6 @@ class PackRepository:
 
         self.session.delete(pack)
         self.session.commit()
+        if self.redis_client.exists(f"pack:{pack_id}"):
+            self.redis_client.delete(f"pack:{pack_id}")
         return True
