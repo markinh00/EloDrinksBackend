@@ -7,12 +7,16 @@ from api.models.product import Product
 from api.schemas.pack import PackCreate, PackSearchParams, PackUpdate
 from api.repositories.pack import PackRepository
 from api.services.db.sqlmodel.database import get_session
+from api.services.db.redis.redis_connection import redis_connection
 
 
 class PackService:
     def __init__(self):
         self.session = get_session()
-        self.repository = PackRepository(session=self.session)
+        self.redis_client = redis_connection()
+        self.repository = PackRepository(
+            session=self.session, redis_client=self.redis_client
+        )
 
     def create_pack(self, data: PackCreate) -> Pack:
         product_ids = [product.id for product in data.products]

@@ -11,11 +11,14 @@ from api.schemas.pack import (
 )
 from api.schemas.product import ProductInPack
 from sqlalchemy import and_
+import redis
 
 
 class PackRepository:
-    def __init__(self, session: Session):
+    def __init__(self, session: Session, redis_client: redis.Redis):
         self.session = session
+        self.redis_client = redis_client
+        self.CACHE_TTL_SECONDS = 18000  # 5 hours
 
     def create(self, pack: Pack) -> Pack:
         try:
@@ -41,6 +44,16 @@ class PackRepository:
         )
 
     def get_by_id(self, pack_id: int) -> Optional[PackRead]:
+        cache_key = f"pack:{pack_id}"
+
+        try:
+            cached_pack_json = self.redis_client.get(cache_key)
+            if cached_pack_json:
+                return PackRead.model_validate_json(cached_pack_json)
+        except redis.RedisError as e:
+            print(f"Redis error accessing {cache_key}: {e}")
+
+        # If not found in cache, fetch from database
         pack = self.session.get(Pack, pack_id)
         if not pack:
             return None
@@ -55,7 +68,7 @@ class PackRepository:
             ProductInPack(id=prod_id, quantity=qty) for prod_id, qty in results
         ]
 
-        return PackRead(
+        pack_to_return = PackRead(
             id=pack.id,
             name=pack.name,
             event_type=pack.event_type,
@@ -64,6 +77,16 @@ class PackRepository:
             structure_id=pack.structure_id,
             products=product_list,
         )
+
+        try:
+            pack_json_to_cache = pack_to_return.model_dump_json()
+            self.redis_client.setex(
+                name=cache_key, time=self.CACHE_TTL_SECONDS, value=pack_json_to_cache
+            )
+        except redis.RedisError as e:
+            print(f"Redis error setting {cache_key}: {e}")
+
+        return pack_to_return
 
     def get_by_id_without_products(
         self, pack_id: int
