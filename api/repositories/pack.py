@@ -25,6 +25,9 @@ class PackRepository:
         try:
             self.session.add(pack)
             self.session.flush()
+            keys = self.redis_client.keys("packs:page:*")
+            if keys:
+                self.redis_client.delete(*keys)
             return pack
         except Exception as e:
             self.session.rollback()
@@ -190,6 +193,9 @@ class PackRepository:
         self.session.refresh(pack)
         if self.redis_client.exists(f"pack:{pack_id}"):
             self.redis_client.delete(f"pack:{pack_id}")
+            keys = self.redis_client.keys("packs:page:*")
+            if keys:
+                self.redis_client.delete(*keys)
         return pack
 
     def delete(self, pack_id: int) -> bool:
@@ -205,4 +211,7 @@ class PackRepository:
         self.session.commit()
         if self.redis_client.exists(f"pack:{pack_id}"):
             self.redis_client.delete(f"pack:{pack_id}")
+            keys = self.redis_client.keys("packs:page:*")
+            if keys:
+                self.redis_client.delete(*keys)
         return True
