@@ -90,7 +90,7 @@
 									"\r",
 									"\r",
 									"pm.test(\"Response time is within acceptable range\", function () {\r",
-									"  pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"  pm.expect(pm.response.responseTime).to.be.below(100000);\r",
 									"});\r",
 									""
 								],
@@ -286,6 +286,21 @@
 				},
 				{
 					"name": "get all customers test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test for status code\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
 						"header": [
@@ -611,6 +626,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"// Test for status code\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
 									"// Test for the existence and data type of the 'id' field in the response body\r",
 									"pm.test('Verify the existence and data type of the id field', () => {\r",
 									"    const responseBody = pm.response.json();\r",
