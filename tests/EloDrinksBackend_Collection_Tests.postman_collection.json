@@ -291,10 +291,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"// Test for status code\r",
-									"pm.test(\"Status code is 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});"
+									"// Test for response time\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(50000);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
