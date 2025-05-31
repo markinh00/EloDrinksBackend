@@ -25,7 +25,7 @@ class PackRepository:
         try:
             self.session.add(pack)
             self.session.flush()
-            keys = self.redis_client.keys("packs:page:*")
+            keys = self.redis_client.keys("packs:*")
             if keys:
                 self.redis_client.delete(*keys)
             return pack
@@ -133,7 +133,17 @@ class PackRepository:
 
     def search(self, params: PackSearchParams) -> List[PackRead]:
         filters = []
+        cache_key = f"packs:search:{params.model_dump_json()}"
+        try:
+            cached_packs_json = self.redis_client.get(cache_key)
+            if cached_packs_json:
+                cached_packs = json.loads(cached_packs_json)
+                if cached_packs:
+                    return [PackRead.model_validate(pack) for pack in cached_packs]
+        except redis.RedisError as e:
+            print(f"Redis error accessing {cache_key}: {e}")
 
+        # If not found in cache, fetch from database
         for key, value in params.model_dump().items():
             if value is not None:
                 if key == "product_name":
@@ -175,6 +185,14 @@ class PackRepository:
             )
             result.append(pack_read)
 
+        try:
+            packs_json = json.dumps([p.model_dump() for p in result])
+            self.redis_client.setex(
+                name=cache_key, time=self.CACHE_TTL_SECONDS, value=packs_json
+            )
+        except redis.RedisError as e:
+            print(f"Redis error setting {cache_key}: {e}")
+
         return result
 
     def update(self, pack_id: int, updated_data: PackUpdate) -> Optional[Pack]:
@@ -193,7 +211,7 @@ class PackRepository:
         self.session.refresh(pack)
         if self.redis_client.exists(f"pack:{pack_id}"):
             self.redis_client.delete(f"pack:{pack_id}")
-            keys = self.redis_client.keys("packs:page:*")
+            keys = self.redis_client.keys("packs:*")
             if keys:
                 self.redis_client.delete(*keys)
         return pack
@@ -211,7 +229,7 @@ class PackRepository:
         self.session.commit()
         if self.redis_client.exists(f"pack:{pack_id}"):
             self.redis_client.delete(f"pack:{pack_id}")
-            keys = self.redis_client.keys("packs:page:*")
+            keys = self.redis_client.keys("packs:*")
             if keys:
                 self.redis_client.delete(*keys)
         return True
