@@ -2,9 +2,9 @@ from typing import List, Optional
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, desc, select
 
+from api.helpers.timezone import get_current_time_utc_minus_3
 from api.models.notification import Notification
 from api.schemas.notification import NotificationCreate, NotificationUpdate
-from datetime import datetime
 
 
 class NotificationRepository:
@@ -52,7 +52,7 @@ class NotificationRepository:
         for key, value in data.model_dump(exclude_unset=True).items():
             setattr(notification, key, value)
 
-        notification.updated_at = datetime.now()
+        notification.updated_at = get_current_time_utc_minus_3()
 
         try:
             self.session.add(notification)
@@ -83,7 +83,7 @@ class NotificationRepository:
             return None
 
         notification.is_read = True
-        notification.updated_at = datetime.now()
+        notification.updated_at = get_current_time_utc_minus_3()
 
         try:
             self.session.add(notification)

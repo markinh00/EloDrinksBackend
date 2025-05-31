@@ -1,6 +1,5 @@
-from datetime import datetime
-
 from bson import ObjectId
+from api.helpers.timezone import get_current_time_utc_minus_3
 from api.schemas.order import OrderCreate, OrderInDB, OrderInDBWithId
 from api.repositories.order import OrderRepository
 
@@ -10,7 +9,7 @@ class OrderService:
         self.repository = repository
 
     def create_order(self, order: OrderCreate) -> OrderInDB:
-        now = datetime.now()
+        now = get_current_time_utc_minus_3()
         order_dict = order.model_dump()
         order_dict["created_at"] = now
         order_dict["updated_at"] = now
