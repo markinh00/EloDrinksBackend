@@ -13,3 +13,4 @@ SQLAlchemy~=2.0.40
 python-jose~=3.4.0
 cloudinary~=1.44.0
 motor~=3.7.0
+redis[hiredis]~=6.2.0
