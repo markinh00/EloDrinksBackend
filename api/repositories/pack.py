@@ -1,3 +1,4 @@
+import json
 from typing import List, Optional
 from sqlmodel import delete, inspect, select, Session
 from api.models.pack import Pack
@@ -11,16 +12,22 @@ from api.schemas.pack import (
 )
 from api.schemas.product import ProductInPack
 from sqlalchemy import and_
+import redis
 
 
 class PackRepository:
-    def __init__(self, session: Session):
+    def __init__(self, session: Session, redis_client: redis.Redis):
         self.session = session
+        self.redis_client = redis_client
+        self.CACHE_TTL_SECONDS = 18000  # 5 hours
 
     def create(self, pack: Pack) -> Pack:
         try:
             self.session.add(pack)
             self.session.flush()
+            keys = self.redis_client.keys("packs:*")
+            if keys:
+                self.redis_client.delete(*keys)
             return pack
         except Exception as e:
             self.session.rollback()
@@ -41,6 +48,16 @@ class PackRepository:
         )
 
     def get_by_id(self, pack_id: int) -> Optional[PackRead]:
+        cache_key = f"pack:{pack_id}"
+
+        try:
+            cached_pack_json = self.redis_client.get(cache_key)
+            if cached_pack_json:
+                return PackRead.model_validate_json(cached_pack_json)
+        except redis.RedisError as e:
+            print(f"Redis error accessing {cache_key}: {e}")
+
+        # If not found in cache, fetch from database
         pack = self.session.get(Pack, pack_id)
         if not pack:
             return None
@@ -55,7 +72,7 @@ class PackRepository:
             ProductInPack(id=prod_id, quantity=qty) for prod_id, qty in results
         ]
 
-        return PackRead(
+        pack_to_return = PackRead(
             id=pack.id,
             name=pack.name,
             event_type=pack.event_type,
@@ -64,6 +81,16 @@ class PackRepository:
             structure_id=pack.structure_id,
             products=product_list,
         )
+
+        try:
+            pack_json_to_cache = pack_to_return.model_dump_json()
+            self.redis_client.setex(
+                name=cache_key, time=self.CACHE_TTL_SECONDS, value=pack_json_to_cache
+            )
+        except redis.RedisError as e:
+            print(f"Redis error setting {cache_key}: {e}")
+
+        return pack_to_return
 
     def get_by_id_without_products(
         self, pack_id: int
@@ -75,17 +102,48 @@ class PackRepository:
         return pack
 
     def get_all(self, page: int = 1, size: int = 10) -> List[PackRead]:
+        cache_key = f"packs:page:{page}:size:{size}"
+        try:
+            cached_packs_json = self.redis_client.get(cache_key)
+            if cached_packs_json:
+                cached_packs = json.loads(cached_packs_json)
+                if cached_packs:
+                    return [
+                        PackWithoutProductsRead.model_validate(pack)
+                        for pack in cached_packs
+                    ]
+        except redis.RedisError as e:
+            print(f"Redis error accessing {cache_key}: {e}")
+
+        # If not found in cache, fetch from database
         try:
             offset = (page - 1) * size
             statement = select(Pack).offset(offset).limit(size)
-            return self.session.exec(statement).all()
+            packs = self.session.exec(statement).all()
+            if packs:
+                list_of_packs_dict = [p.model_dump() for p in packs]
+                packs_json = json.dumps(list_of_packs_dict)
+                self.redis_client.setex(
+                    name=cache_key, time=self.CACHE_TTL_SECONDS, value=packs_json
+                )
+            return packs
         except Exception as e:
             self.session.rollback()
             raise e
 
     def search(self, params: PackSearchParams) -> List[PackRead]:
         filters = []
+        cache_key = f"packs:search:{params.model_dump_json()}"
+        try:
+            cached_packs_json = self.redis_client.get(cache_key)
+            if cached_packs_json:
+                cached_packs = json.loads(cached_packs_json)
+                if cached_packs:
+                    return [PackRead.model_validate(pack) for pack in cached_packs]
+        except redis.RedisError as e:
+            print(f"Redis error accessing {cache_key}: {e}")
 
+        # If not found in cache, fetch from database
         for key, value in params.model_dump().items():
             if value is not None:
                 if key == "product_name":
@@ -127,6 +185,14 @@ class PackRepository:
             )
             result.append(pack_read)
 
+        try:
+            packs_json = json.dumps([p.model_dump() for p in result])
+            self.redis_client.setex(
+                name=cache_key, time=self.CACHE_TTL_SECONDS, value=packs_json
+            )
+        except redis.RedisError as e:
+            print(f"Redis error setting {cache_key}: {e}")
+
         return result
 
     def update(self, pack_id: int, updated_data: PackUpdate) -> Optional[Pack]:
@@ -143,6 +209,11 @@ class PackRepository:
         self.session.add(pack)
         self.session.commit()
         self.session.refresh(pack)
+        if self.redis_client.exists(f"pack:{pack_id}"):
+            self.redis_client.delete(f"pack:{pack_id}")
+            keys = self.redis_client.keys("packs:*")
+            if keys:
+                self.redis_client.delete(*keys)
         return pack
 
     def delete(self, pack_id: int) -> bool:
@@ -156,4 +227,9 @@ class PackRepository:
 
         self.session.delete(pack)
         self.session.commit()
+        if self.redis_client.exists(f"pack:{pack_id}"):
+            self.redis_client.delete(f"pack:{pack_id}")
+            keys = self.redis_client.keys("packs:*")
+            if keys:
+                self.redis_client.delete(*keys)
         return True

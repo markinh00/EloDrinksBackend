@@ -1,50 +1,124 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Depends
+from fastapi.params import Security
+from api.dependencies.auth import get_current_user
 from api.repositories.order import OrderRepository
 from api.schemas.order import OrderCreate, OrderInDB, OrderInDBWithId
-from api.services.db.mongodb.mongo_connection import (
-    get_orders_collection,
-)
+from api.schemas.user import UserScopes
+from api.services.db.mongodb.mongo_connection import get_orders_collection
 from api.services.order import OrderService
 from fastapi import Query
 from fastapi import HTTPException
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
-collection = get_orders_collection()
-service = OrderService(OrderRepository(collection))
+
+async def get_order_service():
+    collection = get_orders_collection()
+    return OrderService(OrderRepository(collection))
 
 
-@router.post("/", response_model=OrderInDB, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    response_model=OrderInDB,
+    dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value, UserScopes.CUSTOMER.value])],
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_order(
     order: OrderCreate,
+    service: OrderService = Depends(get_order_service),
 ):
-    return await service.create_order(order)
+    return service.create_order(order)
 
 
-@router.get("/", response_model=list[OrderInDBWithId])
+@router.get(
+    "/",
+    response_model=list[OrderInDBWithId],
+    dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value])],
+)
 async def get_orders(
     page: int = Query(1, ge=1),
     size: int = Query(10, ge=1, le=100),
     deleted: bool = False,
+    service: OrderService = Depends(get_order_service),
 ):
-    return await service.get_all_orders(page=page, size=size, deleted=deleted)
+    return service.get_all_orders(page=page, size=size, deleted=deleted)
 
 
-@router.get("/customer/{customer_id}", response_model=list[OrderInDBWithId])
+@router.get(
+    "/{order_id}",
+    response_model=OrderInDBWithId,
+    dependencies=[
+        Security(
+            get_current_user, scopes=[UserScopes.ADMIN.value, UserScopes.CUSTOMER.value]
+        )
+    ],
+)
+async def get_order_by_id(
+    order_id: str,
+    service: OrderService = Depends(get_order_service),
+):
+    order = service.get_order_by_id(order_id)
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Order not found"
+        )
+    return order
+
+
+@router.get(
+    "/customer/{customer_id}",
+    response_model=list[OrderInDBWithId],
+    dependencies=[
+        Security(
+            get_current_user, scopes=[UserScopes.ADMIN.value, UserScopes.CUSTOMER.value]
+        )
+    ],
+)
 async def get_orders_by_customer_id(
     customer_id: int,
     page: int = Query(1, ge=1),
     size: int = Query(10, ge=1, le=100),
     deleted: bool = False,
+    service: OrderService = Depends(get_order_service),
 ):
-    return await service.get_orders_by_customer_id(
+    return service.get_orders_by_customer_id(
         customer_id, page=page, size=size, deleted=deleted
     )
 
 
-@router.patch("/{order_id}/cancel", response_model=OrderInDB)
-async def cancel_order(order_id: str):
+@router.patch(
+    "/{order_id}/cancel",
+    response_model=OrderInDB,
+    dependencies=[
+        Security(
+            get_current_user, scopes=[UserScopes.ADMIN.value, UserScopes.CUSTOMER.value]
+        )
+    ],
+)
+async def cancel_order(
+    order_id: str,
+    service: OrderService = Depends(get_order_service),
+):
     try:
-        return await service.cancel_order(order_id)
+        return service.cancel_order(order_id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.patch(
+    "/{order_id}/confirm",
+    response_model=OrderInDB,
+    dependencies=[
+        Security(
+            get_current_user, scopes=[UserScopes.ADMIN.value, UserScopes.CUSTOMER.value]
+        )
+    ],
+)
+async def confirm_order(
+    order_id: str,
+    service: OrderService = Depends(get_order_service),
+):
+    try:
+        return service.confirm_order(order_id)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
