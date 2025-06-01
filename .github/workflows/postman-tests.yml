@@ -27,12 +27,22 @@ jobs:
 
       - name: Set environment variables
         run: |
-          echo "ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}" >> $GITHUB_ENV
-          echo "ALGORITHM=${{ secrets.ALGORITHM }}" >> $GITHUB_ENV
           echo "API_KEY=${{ secrets.API_KEY }}" >> $GITHUB_ENV
-          echo "APP_HOST=${{ secrets.APP_HOST }}" >> $GITHUB_ENV
-          echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> $GITHUB_ENV
           echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
+          echo "ALGORITHM=${{ secrets.ALGORITHM }}" >> $GITHUB_ENV
+          echo "ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}" >> $GITHUB_ENV
+          echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> $GITHUB_ENV
+          echo "MONGO_DATABASE=${{ secrets.MONGO_DATABASE }}" >> $GITHUB_ENV
+          echo "POSTGRES_URI=${{ secrets.POSTGRES_URI }}" >> $GITHUB_ENV
+          echo "CLOUDINARY_NAME=${{ secrets.CLOUDINARY_NAME }}" >> $GITHUB_ENV
+          echo "CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}" >> $GITHUB_ENV
+          echo "CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}" >> $GITHUB_ENV
+          echo "CLOUDINARY_FOLDER=${{ secrets.CLOUDINARY_FOLDER }}" >> $GITHUB_ENV
+          echo "CLOUDINARY_DEFAULT_URL=${{ secrets.CLOUDINARY_DEFAULT_URL }}" >> $GITHUB_ENV
+          echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> $GITHUB_ENV
+          echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> $GITHUB_ENV
+          echo "REDIS_USERNAME=${{ secrets.REDIS_USERNAME }}" >> $GITHUB_ENV
+          echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> $GITHUB_ENV
           echo "APP_HOST=http://127.0.0.1:8000/" >> $GITHUB_ENV
 
       - name: Start FastAPI server
