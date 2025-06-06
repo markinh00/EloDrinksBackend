@@ -48,7 +48,7 @@ jobs:
 
       - name: Start Docker containers (FastAPI + DBs)
         run: |
-          docker-compose up -d
+          docker compose up -d
 
       - name: Wait for FastAPI to be ready
         run: |
