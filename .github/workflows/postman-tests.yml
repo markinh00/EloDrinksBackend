@@ -46,26 +46,27 @@ jobs:
           echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> $GITHUB_ENV
           echo "APP_HOST=http://localhost:8000/" >> $GITHUB_ENV
 
-      - name: Start Docker containers for Supabase and the application
+      - name: Start Docker containers (FastAPI + DBs)
         run: |
-          source venv/bin/activate
-          make docker &
+          docker-compose up -d
 
       - name: Wait for FastAPI to be ready
         run: |
-          sudo apt-get update
-          sudo apt-get install -y netcat-openbsd
           for i in {1..30}; do
-            nc -z localhost 8000 && echo "API is up!" && break
+            curl -s http://localhost:8000/docs > /dev/null && echo "API is up!" && break
             echo "Waiting for API..."
             sleep 2
           done
 
-      - name: Install Newman with html reporter
+      - name: Install Newman with HTML reporter
         run: npm install -g newman newman-reporter-html
 
-      - name: Run Postman tests with environment and generate report
-        run: newman run tests/EloDrinksBackend_Collection_Tests.postman_collection.json -e tests/local.postman_environment.json --reporters cli,html --reporter-html-export tests/reports/report.html
+      - name: Run Postman tests and generate HTML report
+        run: |
+          newman run tests/EloDrinksBackend_Collection_Tests.postman_collection.json \
+            -e tests/local.postman_environment.json \
+            --reporters cli,html \
+            --reporter-html-export tests/reports/report.html
 
       - name: Upload HTML report as an artifact
         uses: actions/upload-artifact@v4
