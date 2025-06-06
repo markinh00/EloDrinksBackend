@@ -49,31 +49,35 @@ class ProductRepository:
         return self.session.get(Product, product_id)
 
     async def update(self, product_id: int, new_data: ProductUpdate) -> Product | None:
-        product = self.get_by_id(product_id)
+        try:
+            product = self.get_by_id(product_id)
 
-        if not product:
-            return None
+            if not product:
+                return None
 
-        cloudinary = Cloudinary()
+            cloudinary = Cloudinary()
 
-        for key, value in new_data.model_dump().items():
-            if value:
-                if key == "delete_img":
-                    cloudinary.delete_image(product.img_url)
-                    product.img_url = os.getenv("CLOUDINARY_DEFAULT_URL")
+            for key, value in new_data.model_dump().items():
+                if value is not None:
+                    if key == "delete_img":
+                        cloudinary.delete_image(product.img_url)
+                        product.img_url = os.getenv("CLOUDINARY_DEFAULT_URL")
 
-                elif key == "img_file":
-                    cloudinary.delete_image(product.img_url)
-                    img_url: str = await cloudinary.upload_image(value)
-                    product.img_url = img_url
+                    elif key == "img_file":
+                        cloudinary.delete_image(product.img_url)
+                        img_url: str = await cloudinary.upload_image(value)
+                        product.img_url = img_url
 
-                else:
-                    setattr(product, key, value)
+                    else:
+                        setattr(product, key, value)
 
-        self.session.add(product)
-        self.session.commit()
-        self.session.refresh(product)
-        return product
+            self.session.add(product)
+            self.session.commit()
+            self.session.refresh(product)
+            return product
+        except Exception as e:
+            self.session.rollback()
+            raise e
 
     def delete(self, product_id: int):
         product = self.get_by_id(product_id)
