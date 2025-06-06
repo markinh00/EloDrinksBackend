@@ -44,7 +44,7 @@ jobs:
           echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> $GITHUB_ENV
           echo "REDIS_USERNAME=${{ secrets.REDIS_USERNAME }}" >> $GITHUB_ENV
           echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> $GITHUB_ENV
-          echo "APP_HOST=http://127.0.0.1:8000/" >> $GITHUB_ENV
+          echo "APP_HOST=http://localhost:8000/" >> $GITHUB_ENV
 
       - name: Start Docker containers for Supabase and the application
         run: |
