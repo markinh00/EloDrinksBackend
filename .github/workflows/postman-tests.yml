@@ -29,25 +29,25 @@ jobs:
       - name: Create .env file from GitHub Secrets
         run: |
           cat <<EOF > .env
-          echo "API_KEY=${{ secrets.API_KEY }}" >> $GITHUB_ENV
-          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
-          echo "ALGORITHM=${{ secrets.ALGORITHM }}" >> $GITHUB_ENV
-          echo "ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}" >> $GITHUB_ENV
-          echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> $GITHUB_ENV
-          echo "MONGO_DATABASE=${{ secrets.MONGO_DATABASE }}" >> $GITHUB_ENV
-          echo "POSTGRES_URI=${{ secrets.POSTGRES_URI }}" >> $GITHUB_ENV
-          echo "CLOUDINARY_NAME=${{ secrets.CLOUDINARY_NAME }}" >> $GITHUB_ENV
-          echo "CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}" >> $GITHUB_ENV
-          echo "CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}" >> $GITHUB_ENV
-          echo "CLOUDINARY_FOLDER=${{ secrets.CLOUDINARY_FOLDER }}" >> $GITHUB_ENV
-          echo "CLOUDINARY_DEFAULT_URL=${{ secrets.CLOUDINARY_DEFAULT_URL }}" >> $GITHUB_ENV
-          echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> $GITHUB_ENV
-          echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> $GITHUB_ENV
-          echo "REDIS_USERNAME=${{ secrets.REDIS_USERNAME }}" >> $GITHUB_ENV
-          echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> $GITHUB_ENV
-          echo "APP_HOST=http://localhost:8000/" >> $GITHUB_ENV
+          API_KEY=${{ secrets.API_KEY }}
+          SECRET_KEY=${{ secrets.SECRET_KEY }}
+          ALGORITHM=${{ secrets.ALGORITHM }}
+          ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}
+          MONGO_URI=${{ secrets.MONGO_URI }}
+          MONGO_DATABASE=${{ secrets.MONGO_DATABASE }}
+          POSTGRES_URI=${{ secrets.POSTGRES_URI }}
+          CLOUDINARY_NAME=${{ secrets.CLOUDINARY_NAME }}
+          CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}
+          CLOUDINARY_FOLDER=${{ secrets.CLOUDINARY_FOLDER }}
+          CLOUDINARY_DEFAULT_URL=${{ secrets.CLOUDINARY_DEFAULT_URL }}
+          REDIS_HOST=${{ secrets.REDIS_HOST }}
+          REDIS_PORT=${{ secrets.REDIS_PORT }}
+          REDIS_USERNAME=${{ secrets.REDIS_USERNAME }}
+          REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+          APP_HOST=http://localhost:8000/
           EOF
-
+ 
       - name: Start API with Makefile
         run: make docker
 
