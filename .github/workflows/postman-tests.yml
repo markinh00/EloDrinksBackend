@@ -50,7 +50,16 @@ jobs:
         run: |
           source venv/bin/activate
           make docker &
-          sleep 7
+
+      - name: Wait for FastAPI to be ready
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y netcat
+          for i in {1..30}; do
+            nc -z localhost 8000 && echo "API is up!" && break
+            echo "Waiting for API..."
+            sleep 2
+          done
 
       - name: Install Newman with html reporter
         run: npm install -g newman newman-reporter-html
