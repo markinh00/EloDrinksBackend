@@ -47,22 +47,7 @@ jobs:
           echo "APP_HOST=http://localhost:8000/" >> $GITHUB_ENV
 
       - name: Start API with Makefile
-        run: |
-          make docker &
-          sleep 10  # dá tempo de o container iniciar
-          docker ps -a
-          echo ">>> Logs do container:"
-          docker logs $(docker ps -aqf "name=elodrinksbackend-api") || true
-
-      - name: Wait for FastAPI to be ready
-        run: |
-          sudo apt-get update && sudo apt-get install -y curl
-          for i in {1..30}; do
-            curl -s http://localhost:8000/docs > /dev/null && echo "✅ API is up!" && exit 0
-            echo "⏳ Esperando a API subir... Tentativa $i"
-            sleep 2
-          done
-          echo "❌ A API não respondeu em até 60s" && exit 1
+        run: make docker
 
       - name: Install Newman with HTML reporter
         run: npm install -g newman newman-reporter-html
