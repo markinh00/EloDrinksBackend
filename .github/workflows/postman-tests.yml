@@ -26,8 +26,9 @@ jobs:
           source venv/bin/activate
           pip install -r requirements.txt
 
-      - name: Set environment variables
+      - name: Create .env file from GitHub Secrets
         run: |
+          cat <<EOF > .env
           echo "API_KEY=${{ secrets.API_KEY }}" >> $GITHUB_ENV
           echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
           echo "ALGORITHM=${{ secrets.ALGORITHM }}" >> $GITHUB_ENV
@@ -45,6 +46,7 @@ jobs:
           echo "REDIS_USERNAME=${{ secrets.REDIS_USERNAME }}" >> $GITHUB_ENV
           echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> $GITHUB_ENV
           echo "APP_HOST=http://localhost:8000/" >> $GITHUB_ENV
+          EOF
 
       - name: Start API with Makefile
         run: make docker

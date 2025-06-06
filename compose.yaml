@@ -10,7 +10,8 @@ services:
       - supabase-db
     environment:
       - POSTGRES_URI=postgresql://postgres:postgres@supabase-db:5432/postgres
-      - ACCESS_TOKEN_EXPIRE_MINUTES=1440
+    env_file:
+      - .env
 
   supabase-db:
     image: supabase/postgres:17.4.1.042
