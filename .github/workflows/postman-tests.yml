@@ -5,6 +5,7 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+  workflow_dispatch:
 
 jobs:
   test:
@@ -45,10 +46,10 @@ jobs:
           echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> $GITHUB_ENV
           echo "APP_HOST=http://127.0.0.1:8000/" >> $GITHUB_ENV
 
-      - name: Start FastAPI server
+      - name: Start Docker containers for Supabase and the application
         run: |
           source venv/bin/activate
-          python -m uvicorn api.api:app --host 0.0.0.0 --port 8000 &
+          make docker &
           sleep 7
 
       - name: Install Newman with html reporter

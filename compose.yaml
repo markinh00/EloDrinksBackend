@@ -1,17 +1,24 @@
-# Comments are provided throughout this file to help you get started.
-# If you need more help, visit the Docker Compose reference guide at
-# https://docs.docker.com/go/compose-spec-reference/
-
-# Here the instructions define your application as a service called "server".
-# This service is built from the Dockerfile in the current directory.
-# You can add other services your application may depend on here, such as a
-# database or a cache. For examples, see the Awesome Compose repository:
-# https://github.com/docker/awesome-compose
 services:
   server:
     build:
       context: .
-    container_name: elodrinksbackend
+    container_name: elodrinksbackend-api
     image: elodrinksbackend
     ports:
       - 8000:8000
+    depends_on:
+      - supabase-db
+    environment:
+      - POSTGRES_URI=postgresql://postgres:postgres@supabase-db:5432/postgres
+
+  supabase-db:
+    image: supabase/postgres:17.4.1.042
+    container_name: elodrinksbackend-supabase-db
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    tmpfs:
+      - /var/lib/postgresql/data
