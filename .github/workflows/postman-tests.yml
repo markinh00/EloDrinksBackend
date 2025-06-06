@@ -47,7 +47,12 @@ jobs:
           echo "APP_HOST=http://localhost:8000/" >> $GITHUB_ENV
 
       - name: Start API with Makefile
-        run: make docker
+        run: |
+          make docker &
+          sleep 10  # dá tempo de o container iniciar
+          docker ps -a
+          echo ">>> Logs do container:"
+          docker logs $(docker ps -aqf "name=elodrinksbackend-api") || true
 
       - name: Wait for FastAPI to be ready
         run: |
