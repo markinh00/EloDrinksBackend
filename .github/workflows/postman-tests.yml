@@ -7,25 +7,58 @@ on:
     branches: [ "master" ]
 
 jobs:
-  run-postman-tests:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-    - name: Install Newman
-      run: npm install -g newman
+      - name: Install Python dependencies
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
 
-    - name: Run Postman Collection
-      run: |
-        newman run tests/EloDrinksBackend_Collection_Tests.postman_collection.json \
-          -e tests/prod.postman_environment.json \
-          --delay-request 100 \
-          --reporters cli,json \
-          --reporter-json-export newman-report.json
+      - name: Set environment variables
+        run: |
+          echo "API_KEY=${{ secrets.API_KEY }}" >> $GITHUB_ENV
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
+          echo "ALGORITHM=${{ secrets.ALGORITHM }}" >> $GITHUB_ENV
+          echo "ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}" >> $GITHUB_ENV
+          echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> $GITHUB_ENV
+          echo "MONGO_DATABASE=${{ secrets.MONGO_DATABASE }}" >> $GITHUB_ENV
+          echo "POSTGRES_URI=${{ secrets.POSTGRES_URI }}" >> $GITHUB_ENV
+          echo "CLOUDINARY_NAME=${{ secrets.CLOUDINARY_NAME }}" >> $GITHUB_ENV
+          echo "CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}" >> $GITHUB_ENV
+          echo "CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}" >> $GITHUB_ENV
+          echo "CLOUDINARY_FOLDER=${{ secrets.CLOUDINARY_FOLDER }}" >> $GITHUB_ENV
+          echo "CLOUDINARY_DEFAULT_URL=${{ secrets.CLOUDINARY_DEFAULT_URL }}" >> $GITHUB_ENV
+          echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> $GITHUB_ENV
+          echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> $GITHUB_ENV
+          echo "REDIS_USERNAME=${{ secrets.REDIS_USERNAME }}" >> $GITHUB_ENV
+          echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> $GITHUB_ENV
+          echo "APP_HOST=http://127.0.0.1:8000/" >> $GITHUB_ENV
+
+      - name: Start FastAPI server
+        run: |
+          source venv/bin/activate
+          python -m uvicorn api.api:app --host 0.0.0.0 --port 8000 &
+          sleep 7
+
+      - name: Install Newman with html reporter
+        run: npm install -g newman newman-reporter-html
+
+      - name: Run Postman tests with environment and generate report
+        run: newman run tests/EloDrinksBackend_Collection_Tests.postman_collection.json -e tests/local.postman_environment.json --reporters cli,html --reporter-html-export tests/reports/report.html
+
+      - name: Upload HTML report as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: postman-report
+          path: tests/reports/report.html
