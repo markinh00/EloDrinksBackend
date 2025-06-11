@@ -1,6 +1,6 @@
 from bson import ObjectId
 from api.helpers.timezone import get_current_time_utc_minus_3
-from api.schemas.order import OrderCreate, OrderInDB, OrderInDBWithId
+from api.schemas.order import OrderCreate, OrderInDB, OrderInDBWithId, DateQueryRange, OrderStatistics
 from api.repositories.order import OrderRepository
 
 
@@ -48,3 +48,12 @@ class OrderService:
 
     def confirm_order(self, order_id: str) -> OrderInDB:
         return self.repository.update_status(order_id, "confirmed")
+
+    def get_orders_statistics(self):
+        ordersStatistics = OrderStatistics(
+            top5_items= self.repository.get_most_ordered_items(),
+            avg_order_value= self.repository.get_avg_order_value(date_range=DateQueryRange()),
+            month_order_count= self.repository.get_order_count(date_range=DateQueryRange()),
+            bar_structure_percentage= self.repository.get_bar_structure_percentages()
+        )
+        return ordersStatistics

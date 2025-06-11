@@ -18,3 +18,8 @@ class BarStructureRead(BaseModel):
 class BarStructureUpdate(BaseModel):
     name: str
     price: float
+
+class BarStructureInOrder(BaseModel):
+    id: int
+    name: str
+    percentage: float

@@ -79,3 +79,8 @@ class ProductUpdate(BaseModel):
 class ProductInPack(BaseModel):
     id: int
     quantity: int
+
+class ProductInOrder(BaseModel):
+    id: int
+    name: str
+    quantity: int
