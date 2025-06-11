@@ -2,7 +2,7 @@ from fastapi import APIRouter, status, Depends
 from fastapi.params import Security
 from api.dependencies.auth import get_current_user
 from api.repositories.order import OrderRepository
-from api.schemas.order import OrderCreate, OrderInDB, OrderInDBWithId
+from api.schemas.order import OrderCreate, OrderInDB, OrderInDBWithId, OrderStatistics
 from api.schemas.user import UserScopes
 from api.services.db.mongodb.mongo_connection import get_orders_collection
 from api.services.order import OrderService
@@ -43,6 +43,15 @@ async def get_orders(
 ):
     return service.get_all_orders(page=page, size=size, deleted=deleted)
 
+@router.get(
+    "/statistics",
+    dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value])],
+    response_model=OrderStatistics
+)
+async def get_orders_statistics(
+        service: OrderService = Depends(get_order_service),
+):
+    return service.get_orders_statistics()
 
 @router.get(
     "/{order_id}",
