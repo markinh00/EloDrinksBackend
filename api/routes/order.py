@@ -5,6 +5,7 @@ from api.repositories.order import OrderRepository
 from api.schemas.order import OrderCreate, OrderInDB, OrderInDBWithId, OrderStatistics
 from api.schemas.user import UserScopes
 from api.services.db.mongodb.mongo_connection import get_orders_collection
+from api.services.db.redis.redis_connection import redis_connection
 from api.services.order import OrderService
 from fastapi import Query
 from fastapi import HTTPException
@@ -14,13 +15,17 @@ router = APIRouter(prefix="/orders", tags=["Orders"])
 
 async def get_order_service():
     collection = get_orders_collection()
-    return OrderService(OrderRepository(collection))
+    return OrderService(OrderRepository(collection, redis_connection()))
 
 
 @router.post(
     "/",
     response_model=OrderInDB,
-    dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value, UserScopes.CUSTOMER.value])],
+    dependencies=[
+        Security(
+            get_current_user, scopes=[UserScopes.ADMIN.value, UserScopes.CUSTOMER.value]
+        )
+    ],
     status_code=status.HTTP_201_CREATED,
 )
 async def create_order(
@@ -43,15 +48,17 @@ async def get_orders(
 ):
     return service.get_all_orders(page=page, size=size, deleted=deleted)
 
+
 @router.get(
     "/statistics",
     dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value])],
-    response_model=OrderStatistics
+    response_model=OrderStatistics,
 )
 async def get_orders_statistics(
-        service: OrderService = Depends(get_order_service),
+    service: OrderService = Depends(get_order_service),
 ):
     return service.get_orders_statistics()
+
 
 @router.get(
     "/{order_id}",
