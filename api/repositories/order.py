@@ -58,3 +58,17 @@ class OrderRepository:
         if result.modified_count == 0:
             raise ValueError("Order not found or status already set to the same value")
         return self.get_order_by_id(ObjectId(order_id))
+
+    def update_order(self, order_id: ObjectId, order_update_dict: dict):
+        result = self.collection.update_one(
+            {"_id": order_id}, {"$set": order_update_dict}
+        )
+        if result.modified_count == 0:
+            raise ValueError("Order not found or no changes made")
+        return self.get_order_by_id(order_id)
+
+    def delete_order(self, order_id: ObjectId):
+        result = self.collection.find_one_and_delete({"_id": order_id})
+        if not result:
+            raise ValueError("Order not found")
+        return result

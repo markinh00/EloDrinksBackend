@@ -20,7 +20,11 @@ async def get_order_service():
 @router.post(
     "/",
     response_model=OrderInDB,
-    dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value, UserScopes.CUSTOMER.value])],
+    dependencies=[
+        Security(
+            get_current_user, scopes=[UserScopes.ADMIN.value, UserScopes.CUSTOMER.value]
+        )
+    ],
     status_code=status.HTTP_201_CREATED,
 )
 async def create_order(
@@ -120,5 +124,36 @@ async def confirm_order(
 ):
     try:
         return service.confirm_order(order_id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.put(
+    "/{order_id}/update",
+    response_model=OrderInDB,
+    dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value])],
+)
+async def update_order(
+    order_id: str,
+    order: OrderCreate,
+    service: OrderService = Depends(get_order_service),
+):
+    try:
+        return service.update_order(order_id, order)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.delete(
+    "/{order_id}",
+    response_model=OrderInDB,
+    dependencies=[Security(get_current_user, scopes=[UserScopes.ADMIN.value])],
+)
+async def delete_order(
+    order_id: str,
+    service: OrderService = Depends(get_order_service),
+):
+    try:
+        return service.delete_order(order_id)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

@@ -48,3 +48,21 @@ class OrderService:
 
     def confirm_order(self, order_id: str) -> OrderInDB:
         return self.repository.update_status(order_id, "confirmed")
+
+    def update_order(self, order_id: str, order_update: OrderCreate) -> OrderInDBWithId:
+        order_object_id = ObjectId(order_id)
+        now = get_current_time_utc_minus_3()
+        order_update_dict = order_update.model_dump()
+        order_update_dict["updated_at"] = now
+
+        updated_order = self.repository.update_order(order_object_id, order_update_dict)
+        return OrderInDBWithId(**{**updated_order, "_id": str(updated_order["_id"])})
+
+    def delete_order(self, order_id: str) -> OrderInDBWithId:
+        order_object_id = ObjectId(order_id)
+        deleted_order = self.repository.delete_order(order_object_id)
+        if deleted_order:
+            return OrderInDBWithId(
+                **{**deleted_order, "_id": str(deleted_order["_id"])}
+            )
+        return None
