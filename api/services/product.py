@@ -5,23 +5,33 @@ from api.repositories.product import ProductRepository
 from api.schemas.pagination import ProductPagination
 from api.schemas.product import ProductCreate, ProductSearchParams, ProductUpdate
 from api.services.db.cloudinary.database import Cloudinary
+from api.services.db.redis.redis_connection import redis_connection
 from api.services.db.sqlmodel.database import get_session
 
 load_dotenv()
 
+
 class ProductService:
     def __init__(self):
-        self.repository = ProductRepository(session=get_session())
+        self.repository = ProductRepository(
+            session=get_session(), redis_client=redis_connection()
+        )
 
     async def create_product(self, product: ProductCreate) -> Product | None:
         cloudinary = Cloudinary()
-        img_url: str = await cloudinary.upload_image(product.img_file) if product.img_file else os.getenv("CLOUDINARY_DEFAULT_URL")
-        return self.repository.create(Product(
+        img_url: str = (
+            await cloudinary.upload_image(product.img_file)
+            if product.img_file
+            else os.getenv("CLOUDINARY_DEFAULT_URL")
+        )
+        return self.repository.create(
+            Product(
                 name=product.name,
                 price=product.price,
                 category=product.category,
-                img_url=img_url
-            ))
+                img_url=img_url,
+            )
+        )
 
     def search_product(self, search_queries: ProductSearchParams) -> list[Product]:
         return self.repository.search(search_queries)
