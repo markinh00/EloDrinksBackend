@@ -127,12 +127,14 @@ class OrderRepository:
         )
         if result.modified_count == 0:
             raise ValueError("Order not found or no changes made")
+        self._invalidate_order_caches(order_id=str(order_id))
         return self.get_order_by_id(order_id)
 
     def delete_order(self, order_id: ObjectId):
         result = self.collection.find_one_and_delete({"_id": order_id})
         if not result:
             raise ValueError("Order not found")
+        self._invalidate_order_caches(order_id=str(order_id))
         return result
 
     def get_most_ordered_items(self):
